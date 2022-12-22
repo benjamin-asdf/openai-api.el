@@ -1,0 +1,84 @@
+I hope we get a FOSS code gen api soon.
+I was impressed by the state of openai text and codegen, I want this
+in emacs.
+
+* emacs package wip
+
+- Get an api token at https://openai.com/api/ (after 3 months you'd
+  have to pay)
+- load file =openail.el=
+- Check =dev.el= for how I set it up right now for me, do something similaar.
+- The best command is =openai-api-davinci-edit=. I asks you for an
+  instructions then sends the current buffer input + the instruction.
+  Narrow your current buffer!
+- It was already quite good at stuff like
+  I narrow my buffer to defun
+  I tell it things like "add a docstring to the function".
+- I wonder if you could spot which parts of openail.el look generated.
+
+
+* More notes
+
+My explorations of [[https://beta.openai.com/][openai api]] using babashka.
+
+It is doing it, which is sort of exiting:
+
+#+begin_src clojure
+(openai-edit
+ {:model "code-davinci-edit-001"
+  :instruction "Remove redundant let, preserve bindings from all let. Fix whitespace."
+  :input  (prn-str '(let [foo 10] (let [bar 11] (+ foo bar))))})
+#+end_src
+
+#+begin_src clojure
+(let [foo 10
+      bar 11]
+  (+ foo bar))
+#+end_src
+
+(Nbb also worked but their node client doesn't even have edits yet).
+
+You need to provid an api-key.
+
+
+** emacs package goals
+
+*** DONE Completion and edit are separate models, provide both
+*** Provide a way to define commands, the power comes from engeneering the prompt
+
+See ./examples/
+
+**** Select region and ask ai
+See [[file:examples/time-complexity.el][example time complexity]].
+I made a command =openai-api-explain-region= . You can add more custom
+prompts via =openai-api-explain-data-list=.
+
+#+begin_src elisp
+  (add-to-list
+    openai-api-explain-data-list
+    '("What does this do?"
+       .
+       (((model . "text-davinci-003")
+         (top_p . 1)
+         (max_tokens . 64)
+         (temperature . 0)))))
+#+end_src
+
+**** Next steps
+- make more examples in https://beta.openai.com/examples
+
+** Also make it easy to use the other models for text (org mode,markdown mode)
+
+
+#+begin_src elisp
+
+
+#+end_src
+
+- Make different commands for separate use cases.
+  - capf for completion of next few words
+  - complete with region that is allowed to run a bit longer
+
+** other projects
+[[https://github.com/debanjum/codex-completion][
+codex-completion]] package is not up to date anymore.
