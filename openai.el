@@ -256,38 +256,6 @@ ENDPOINT is the API endpoint to use."
 		(frequency_penalty . 0)
 		(presence_penalty . 0))))))))
 
-(defun openai-api-completion-completing-read ()
-  (interactive)
-  (let* ((beg
-          (save-excursion
-            (cl-loop for i from (point) downto (1+ (point-min))
-                     do (forward-char -1)
-                     finally return (point))))
-         (end (point))
-         (prompt (buffer-substring beg end)))
-    (insert
-     (completing-read
-      "code-davinci-002: "
-      (with-current-buffer
-          (openai-api-retrieve-sync
-           `((model . "code-davinci-002")
-             (max_tokens . ,(* 4 256))
-             (temperature . 0)
-             (prompt . ,prompt)))
-        (mapcar
-         openai-api-balance-parens-fn
-         (cl-remove-duplicates  (mapcan
-                                 (lambda (s) (split-string s "\n\n"))
-                                 (openai-api-choices-text)))))))))
-
-(defun openai-api-complete-code-thoroughly ()
-  (interactive)
-  (openai-api-completion-completing-read-1
-   `((model .  "code-davinci-002")
-     (max_tokens . ,(* 4 256))
-     (temperature . 0)
-     (prompt . ,(openai-api-buffer-backwards-dwim)))))
-
 (defun openai-api-complete-code-thoroughly ()
   "Complete code using OpenAI API."
   (interactive)
@@ -420,7 +388,22 @@ The response is displayed in a buffer named
        nil
        :edit))))
 
+(defun openai-api-edit-ediff-buffers ()
+  (interactive)
+  (let ((buffers
+         (if (openai-api-edit-resp-buffer-p (current-buffer))
+             (list openai-api-edit-target-buffer (current-buffer))
+           (when-let ((resp-buffer (car (cl-loop for buffer in (buffer-list)
+                                               when (= (current-buffer)
+                                                       (with-current-buffer buffer openai-api-edit-target-buffer))
+                                               collect buffer))))
+             (list (current-buffer) resp-buffer)))))
+    (unless buffers
+      (error "Don't know what response buffer you want to ediff with."))
+    (apply #'ediff-buffers buffers)))
+
 (defun openai-api-cleanup-resp-buffers ()
+  (interactive)
   (cl-loop for buffer in (buffer-list)
            when (openai-api-edit-resp-buffer-p buffer)
            do (kill-buffer buffer)))

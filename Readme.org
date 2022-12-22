@@ -1,45 +1,31 @@
-I hope we get a FOSS code gen api soon.
-I was impressed by the state of openai text and codegen, I want this
-in emacs.
+I wanted openai-api stuff in emacs.
+Consider this an alpha version where everything still might change.
+Prs welcome.
 
-* emacs package wip
+* Setup
 
-- Get an api token at https://openai.com/api/ (after 3 months you'd
-  have to pay)
-- load file =openail.el=
-- Check =dev.el= for how I set it up right now for me, do something similaar.
-- The best command is =openai-api-davinci-edit=. I asks you for an
-  instructions then sends the current buffer input + the instruction.
-  Narrow your current buffer!
-- It was already quite good at stuff like
-  I narrow my buffer to defun
-  I tell it things like "add a docstring to the function".
-- I wonder if you could spot which parts of openail.el look generated.
+- Get an api token at https://openai.com/api/ (after 3 months you'd have to pay)
+- load file =openail.el=.
+- Check =dev.el=. You need to set =openai-api-key=.
 
+* Usage tips
 
-* More notes
+** openai-api-davinci-edit
+- optionally narrow your buffer. E.g. to your defun. (you usually want
+  to do this).
+- use =openai-api-davinci-edit=
+- The response is put in a buffer called =*openai-edit-<your-buffer-name>*=
+- =ediff-buffers= is nice when you have a response
+- use =openai-api-edit-ediff-buffers= to auto select target and
+  response buffs.
 
-My explorations of [[https://beta.openai.com/][openai api]] using babashka.
-
-It is doing it, which is sort of exiting:
-
-#+begin_src clojure
-(openai-edit
- {:model "code-davinci-edit-001"
-  :instruction "Remove redundant let, preserve bindings from all let. Fix whitespace."
-  :input  (prn-str '(let [foo 10] (let [bar 11] (+ foo bar))))})
-#+end_src
-
-#+begin_src clojure
-(let [foo 10
-      bar 11]
-  (+ foo bar))
-#+end_src
-
-(Nbb also worked but their node client doesn't even have edits yet).
-
-You need to provid an api-key.
-
+*** Seriously play with this
+- "Add a docstring"
+- "Remove redundant let"
+- In a css file, say on a high level "Make the dropdown text fill
+  the whole dropdown".
+- You can use quite high level language. The model figures out the
+  intent surprisingly well.
 
 ** emacs package goals
 
@@ -68,17 +54,9 @@ prompts via =openai-api-explain-data-list=.
 - make more examples in https://beta.openai.com/examples
 
 ** Also make it easy to use the other models for text (org mode,markdown mode)
-
-
-#+begin_src elisp
-
-
-#+end_src
-
-- Make different commands for separate use cases.
-  - capf for completion of next few words
-  - complete with region that is allowed to run a bit longer
-
+** Increase package quality
+*** docstrings
+*** more readme
+*** gifs
 ** other projects
-[[https://github.com/debanjum/codex-completion][
-codex-completion]] package is not up to date anymore.
+[[https://github.com/debanjum/codex-completion][codex-completion]] package is not up to date with the api endpoints.
