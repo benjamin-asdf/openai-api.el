@@ -50,10 +50,10 @@ You need to adapt this.
 - You can use quite high level language. The model figures out the
   intent surprisingly well.
 
-** explore api and make your own commands
+** Explore api and make your own commands
 See [[file:examples/][examples]]
 
-** explain-region
+** Explain region
 
 See [[file:examples/time-complexity.el][example time complexity]].
 I made a command =openai-api-explain-region= . You can add more custom
