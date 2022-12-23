@@ -20,6 +20,7 @@
                                 (comment-line 1)))
       m)))
 
+(define-key openai-api-keymap (kbd "f") #'openai-api-fact-bot)
 
 Dog
 Snake

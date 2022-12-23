@@ -70,7 +70,12 @@ prompts via =openai-api-explain-data-list=.
          (temperature . 0)))))
 #+end_src
 
-** emacs package goals
+** openai-api-fact-bot
+
+Make a question, get facts.
+See [[file:examples/q&a.el][example]].
+
+* emacs package goals
 
 *** DONE Completion and edit are separate models, provide both
 *** DONE Provide a way to define commands, the power comes from engeneering the prompt

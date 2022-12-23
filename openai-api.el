@@ -523,6 +523,7 @@ A:
     (define-key m (kbd "e") #'openai-api-davinci-edit)
     (define-key m (kbd "E") #'openai-api-edit-text)
     (define-key m (kbd "t") #'openai-api-complete-text-small)
+    (define-key m (kbd "f") #'openai-api-fact-bot)
     (define-key m (kbd "l") #'openai-api-explain-region)
     m)
   "Keymap for openai-api.")
