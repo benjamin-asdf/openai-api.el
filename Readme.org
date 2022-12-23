@@ -1,6 +1,7 @@
 I wanted openai-api stuff in emacs.
 Consider this an alpha version where everything still might change.
-Prs welcome.
+PRs welcome, if you use it and have improves, make your own commands
+or implement more examples.
 
 * Setup
 
@@ -8,7 +9,29 @@ Prs welcome.
 - load file =openail.el=.
 - Check =dev.el=. You need to set =openai-api-key=.
 
-* Usage tips
+** example config
+
+You need to adapt this.
+
+#+begin_src elisp
+(use-package openai-api
+  :straight nil
+  :load-path "~/repos/openai-api.el/"
+  :config
+  (auth-source-pass-enable)
+  (setq openai-api-key
+        (auth-source-pick-first-password
+         :host "openai-api-key-2"))
+  (define-key openai-api-keymap (kbd "i")
+    (defun mm/insert-todo ()
+      (interactive)
+      (insert "TODO: ")
+      (comment-line 1)))
+  (meow-leader-define-key
+   '("." . openai-api-keymap)))
+#+end_src
+
+* Usage
 
 ** openai-api-davinci-edit
 - optionally narrow your buffer. E.g. to your defun. (you usually want
@@ -27,14 +50,11 @@ Prs welcome.
 - You can use quite high level language. The model figures out the
   intent surprisingly well.
 
-** emacs package goals
+** explore api and make your own commands
+See [[file:examples/][examples]]
 
-*** DONE Completion and edit are separate models, provide both
-*** Provide a way to define commands, the power comes from engeneering the prompt
+** explain-region
 
-See ./examples/
-
-**** Select region and ask ai
 See [[file:examples/time-complexity.el][example time complexity]].
 I made a command =openai-api-explain-region= . You can add more custom
 prompts via =openai-api-explain-data-list=.
@@ -50,13 +70,19 @@ prompts via =openai-api-explain-data-list=.
          (temperature . 0)))))
 #+end_src
 
-**** Next steps
-- make more examples in https://beta.openai.com/examples
+** emacs package goals
+
+*** DONE Completion and edit are separate models, provide both
+*** DONE Provide a way to define commands, the power comes from engeneering the prompt
+*** TODO implement more examples
+    https://beta.openai.com/examples
 
 ** Also make it easy to use the other models for text (org mode,markdown mode)
-** Increase package quality
+- =openai-api-complete-text-small=
+- =openai-api-edit-text=
+** TODO Increase package quality
 *** docstrings
-*** more readme
-*** gifs
+*** TODO more readme
+*** TODO gifs
 ** other projects
 [[https://github.com/debanjum/codex-completion][codex-completion]] package is not up to date with the api endpoints.

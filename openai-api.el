@@ -1,3 +1,4 @@
+;;; openai.el --- openai api bindings for interactive development
 ;; -*- lexical-binding: t; -*-
 
 ;;; Commentary:
@@ -25,22 +26,14 @@
 
 This can be set to a string or a function that returns a string.
 
-If you use auth-sources (eg. pass) then you can set this to a
+If you use `auth-sources' (eg.  pass) then you can set this to a
 function that calls `auth-source-user-or-password' with the
 appropriate parameters."
   :type 'string
   :group 'openai)
 
-(defcustom openai-api-response-buffer-as-input
-  t
-  "Whether or not subsequent `openai-api-davinci-edit-send-it`
-calls will use the content of the response buffer.
-The default is `t`."
-  :type 'boolean
-  :group 'openai)
-
 (defvar openai-api-urls `(:edit "https://api.openai.com/v1/edits"
-                          :completion "https://api.openai.com/v1/completions"))
+                                :completion "https://api.openai.com/v1/completions"))
 
 (defcustom openai-api-eval-spinner-type
   'progress-bar-filled
@@ -524,3 +517,16 @@ A:
                       (temperature . 0)
                       (presence_penalty . 0)
                       (stop . ["\n"]))))))))
+
+(defvar openai-api-keymap
+  (let ((m (make-sparse-keymap)))
+    (define-key m (kbd "e") #'openai-api-davinci-edit)
+    (define-key m (kbd "E") #'openai-api-edit-text)
+    (define-key m (kbd "t") #'openai-api-complete-text-small)
+    (define-key m (kbd "l") #'openai-api-explain-region)
+    m)
+  "Keymap for openai-api.")
+
+(provide 'openai-api)
+
+;;; openai.el ends here
