@@ -55,17 +55,7 @@ Do animals find the optimal path alongside a mountain?
 Which of my ancestors is a amphibian?
 Do bats experience color?
 Why are the 2 sexes?
-Give me an overview of the tree of live.
-Why do some animals have stripes or spots?
-How do plants know which direction to grow?
-What makes a volcano erupt?
-How do animals migrate long distances?
-Why do some animals have venom or poison?
-How do animals communicate with each other?
-Why isn't all rock sand?
-What is known about the neuroscience of tool use?
-Could I model emotions in a computer program?
-Why does my body space expand when I ride a car or use a computer?
+What is a quark?
 "))
     (openai-api-sync
      (list
