@@ -485,8 +485,7 @@ You do not need to put a matching prompt, free form will ask text-davinci-003."
 The square root of banana is not a real number."
   (interactive "sQuestion: ")
   (let  ((input (format
-                 "
-I am a highly intelligent question answering bot.
+                 "I am a highly intelligent question answering bot.
 
 Q: What is human life expectancy in the United States?
 A: Human life expectancy in the United States is 78 years.
