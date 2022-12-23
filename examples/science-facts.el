@@ -45,8 +45,7 @@ Answer:
        (insert answer)))))
 
 (defun question-bot ()
-  (let ((input "Do bees see a different rainbow?
-Why is the sky blue?
+  (let ((input "Why is the sky blue?
 Why is the sky white?
 Why do clouds fly?
 How many cells are in an average leaf?
@@ -54,8 +53,14 @@ How much calories does a cow need?
 Do animals find the optimal path alongside a mountain?
 Which of my ancestors is a amphibian?
 Do bats experience color?
-Why are the 2 sexes?
+Why are there 2 sexes?
 What is a quark?
+Why is play fun?
+What is the purpose of music?
+Do birds think in visuals?
+How does a fish breathe underwater?
+What is the sound of silence?
+What is dark matter?
 "))
     (openai-api-sync
      (list
@@ -70,16 +75,7 @@ What is a quark?
 (cl-loop for i upto 5
         collect (question-bot))
 
-
-'(("What are the main components of a robot?")
-  ("What is dark energy?")
-  ("What is the physics of the formation of rainbows")
-  ("What evolutionary advantage does biological aging provide?")
-  ("What is the chemical composition of the atmosphere?")
-  ("Why do some rocks move up and down in water"))
-
 ;; this is with science bot like this:
-
 
 
 
