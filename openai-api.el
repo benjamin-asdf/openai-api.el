@@ -1,5 +1,4 @@
-;;; openai.el --- openai api bindings for interactive development
-;; -*- lexical-binding: t; -*-
+;;; openai.el --- openai api bindings for interactive development  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
