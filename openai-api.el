@@ -132,6 +132,9 @@ See `spinner-types' variable."
       (goto-char (point-min))
       (re-search-forward "\n\n")
       (let ((data (json-read)))
+        (when (assoc-default 'error data)
+          (pop-to-buffer (current-buffer))
+          (error "Error response from openai"))
         (assoc-default 'choices data)))))
 
 (defun openai-api-choices-text-1 (choices)
@@ -188,7 +191,6 @@ ENDPOINT is the API endpoint to use."
   (cl-loop
    for strat in strategies
    append (with-current-buffer (openai-api-retrieve-sync strat)
-            ;; (pop-to-buffer (current-buffer))
             (mapcar openai-api-balance-parens-fn (openai-api-choices-text)))))
 
 (defun openai-api-completions ()

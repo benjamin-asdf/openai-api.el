@@ -4,7 +4,6 @@
              (process-lines "gpg" "--decrypt" "token.gpg")))
           (string-trim (shell-command-to-string "pass ben-open-ai"))))
 
-
 (meow-leader-define-key
  `("." .
    ,(let ((m (make-sparse-keymap)))
