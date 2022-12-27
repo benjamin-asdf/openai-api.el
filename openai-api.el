@@ -124,17 +124,25 @@ See `spinner-types' variable."
   "Return a list of choices from the current buffer."
   (let ((s (buffer-string)))
     (with-temp-buffer
-      (setq buffer-file-coding-system 'utf-8)
+      (setq buffer-file-coding-system
+            'utf-8)
       (insert s)
-      (decode-coding-region (point-min)
-                            (point-max)
-                            'utf-8)
+      (decode-coding-region
+       (point-min)
+       (point-max)
+       'utf-8)
       (goto-char (point-min))
-      (re-search-forward "\n\n")
-      (let ((data (json-read)))
-        (when (assoc-default 'error data)
-          (pop-to-buffer (current-buffer))
-          (error "Error response from openai"))
+      (let ((data (when (re-search-forward
+                         "\n\n"
+                         nil
+                         t)
+                    (json-read))))
+        (when (or (not data)
+                  (assoc-default 'error data))
+          (pop-to-buffer
+           (current-buffer))
+          (error
+           "Error response from openai"))
         (assoc-default 'choices data)))))
 
 (defun openai-api-choices-text-1 (choices)
