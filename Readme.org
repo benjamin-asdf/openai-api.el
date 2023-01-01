@@ -14,21 +14,22 @@ or implement more examples.
 You need to adapt this.
 
 #+begin_src elisp
-(use-package openai-api
-  :straight nil
-  :load-path "~/repos/openai-api.el/"
-  :config
-  (auth-source-pass-enable)
-  (setq openai-api-key
-        (auth-source-pick-first-password
-         :host "openai-api-key-2"))
-  (define-key openai-api-keymap (kbd "i")
-    (defun mm/insert-todo ()
-      (interactive)
-      (insert "TODO: ")
-      (comment-line 1)))
-  (meow-leader-define-key
-   '("." . openai-api-keymap)))
+  (use-package openai-api
+    :straight nil
+    :load-path "~/repos/openai-api.el/"
+    :config
+    (auth-source-pass-enable)
+    (setq openai-api-key
+          (auth-source-pick-first-password
+           :host "openai-api-key-2"))
+    (define-key openai-api-keymap (kbd "i")
+                (defun mm/insert-todo ()
+                  (interactive)
+                  (insert "TODO: ")
+                  (comment-line 1)))
+    (define-key git-commit-mode-map (kbd "C-c i") #'openai-current-commit-msg)
+    (meow-leader-define-key
+     '("." . openai-api-keymap)))
 #+end_src
 
 * Usage
@@ -69,6 +70,10 @@ prompts via =openai-api-explain-data-list=.
          (max_tokens . 64)
          (temperature . 0)))))
 #+end_src
+
+** openai-current-commit-msg
+Generates a commit message from your current diff. I recommend binding
+it in =git-commit-mode-map=.
 
 ** openai-api-fact-bot
 
