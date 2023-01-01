@@ -534,9 +534,16 @@ A:
          (input
           (format
            "I am a git commit message bot. You give me a git diff of your staged changes and I make a commit message.
+Example commit messages:
+- Fix bug in login form validation
+- Improve performance of image loading on homepage
+- Add missing unit tests for user registration feature
+- Update documentation for API endpoint changes
+- Refactor code to use new third-party library
 
 Diff: %s
-Message: " git-diff)))
+Message: "
+           git-diff)))
     (cl-loop for answer in
              (openai-api-sync
               (list
@@ -547,7 +554,7 @@ Message: " git-diff)))
                  (temperature . 0.7)
                  (presence_penalty . 1)
                  (frequency_penalty . 0))))
-             do (insert answer))))
+             do (insert (string-trim answer)))))
 
 (defvar openai-api-keymap
   (let ((m (make-sparse-keymap)))
