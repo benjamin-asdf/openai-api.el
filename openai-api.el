@@ -352,11 +352,6 @@ The response is displayed in a buffer named
                              (generate-new-buffer (concat "*openai-edit-" (buffer-name target-buffer) "*")))))
          (input
           (with-temp-buffer
-            ;; this is a guess that the model performs better
-            ;; if we say what language
-            ;; hard to say if it is better, you might get elisp
-            ;; but that is actually kinda quality code
-            (insert (format ";; %s\n" mode))
             (insert
              (with-current-buffer
                  (if called-from-resp-buffer
