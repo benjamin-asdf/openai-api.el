@@ -535,17 +535,18 @@ A:
 (defun openai-current-commit-msg (&optional git-diff)
   "Make a commit msg from your stages changes."
   (interactive)
-  (let* ((git-diff
-          (or git-diff (shell-command-to-string "git diff --cached")))
-         (input
-          (format
-           "I am a git commit message bot. You give me a git diff of your staged changes and I make a commit message.
+  (let* ((git-diff (or git-diff
+                       (shell-command-to-string
+                        "git diff --cached")))
+         (input (format
+                 "I am a git commit message bot. You give me a git diff of your staged changes and I make a commit message.
 Example commit messages:
 - Fix bug in login form validation
 - Improve performance of image loading on homepage
 - Add missing unit tests for user registration feature
-- Update documentation for API endpoint changes
-- Refactor code to use new third-party library
+- Add documentation for openai-api-davinci-edit and recursive calls
+- Update readme
+- Format whitespace
 
 Diff: %s
 Message: "
