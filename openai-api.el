@@ -54,6 +54,14 @@ See `spinner-types' variable."
   :type 'integer
   :group 'openai-api)
 
+
+(defcustom openai-api-response-buffer-ediff-key "C-c C-e"
+  "A kbd key for `openai-api-edit-ediff-buffers'.
+This is locally bound in edit response buffers.
+Set this to `nil' to disable this behaviour."
+  :type 'string
+  :group 'openai-api)
+
 (defconst openai-api-edit-buffer "*ai-instructions*"
   "Buffer to use for the openai edit instructions prompt")
 
@@ -361,6 +369,9 @@ The response is displayed in a buffer named
     ;; (when (< 3000 (length input
     ;;          (message "Your input is large, consider narrowing your buffer.")))
     (with-current-buffer resp-buffer
+      (local-set-key
+       (kbd openai-api-response-buffer-ediff-key)
+       #'openai-api-edit-ediff-buffers)
       (openai-api-spinner-start resp-buffer)
       (pop-to-buffer (current-buffer))
       (openai-api-retrieve
