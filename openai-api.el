@@ -536,13 +536,11 @@ A:
   "Make a commit msg from your stages changes.
 This inserts 2 variations currently so you can choose."
   (interactive)
-  (let* ((git-diff
-          (or git-diff
-              (shell-command-to-string
-               "git diff --cached")))
-         (input
-          (format
-           "I am a commit message generator designed to produce professional and informative messages based on a git diff. Given a diff, I will analyze the changes made and generate a commit message that accurately describes the modifications made to the code. My goal is to provide clear and concise commit messages that are useful for other developers who are reviewing the code.
+  (let* ((git-diff (or git-diff
+                       (shell-command-to-string
+                        "git diff --cached")))
+         (input (format
+                 "I am a commit message generator designed to produce professional and informative and concise messages based on a git diff. Given a diff, I will analyze the changes made and generate a commit message that accurately describes the modifications made to the code. My goal is to provide clear and concise commit messages that are useful for other developers who are reviewing the code.
 
 Diff: --- a/main.py
 +++ b/main.py
@@ -555,7 +553,8 @@ Message: Updated foo function to print bar instead.
 
 Diff: %s
 
-Message: " git-diff)))
+Message: "
+                 git-diff)))
     (cl-loop
      for
      answer
