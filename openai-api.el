@@ -549,7 +549,7 @@ Diff: --- a/main.py
 -  print(\"foo\")
 +  print(\"bar\")
 
-Message: Updated foo function to print bar instead.
+Message: Updated foo function to print bar instead
 
 Diff: %s
 
