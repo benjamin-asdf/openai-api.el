@@ -529,11 +529,12 @@ A:
 (defun openai-current-commit-msg (&optional git-diff)
   "Make a commit msg from your stages changes."
   (interactive)
-  (let* ((git-diff
-          (or git-diff (shell-command-to-string "git diff --cached")))
-         (input
-          (format
-           "I am a git commit message bot. You give me a git diff of your staged changes and I make a commit message.
+  (let* ((git-diff (or git-diff
+                       (shell-command-to-string
+                        "git diff --cached")))
+         (input (format
+                 "I am a git commit message bot. You give me a git diff of your staged changes and I make a commit message.
+The message is short. Less than 80 characters.
 Example commit messages:
 - Fix bug in login form validation
 - Improve performance of image loading on homepage
@@ -543,18 +544,22 @@ Example commit messages:
 
 Diff: %s
 Message: "
-           git-diff)))
-    (cl-loop for answer in
-             (openai-api-sync
-              (list
-               `((model . "text-davinci-003")
-                 (prompt . ,input)
-                 (top_p . 1)
-                 (max_tokens . 60)
-                 (temperature . 0.7)
-                 (presence_penalty . 1)
-                 (frequency_penalty . 0))))
-             do (insert (string-trim answer)))))
+                 git-diff)))
+    (cl-loop
+     for
+     answer
+     in
+     (openai-api-sync
+      (list
+       `((model . "text-davinci-003")
+         (prompt . ,input)
+         (top_p . 1)
+         (max_tokens . 60)
+         (temperature . 0.7)
+         (presence_penalty . 1)
+         (frequency_penalty . 0))))
+     do
+     (insert (string-trim answer)))))
 
 (defvar openai-api-keymap
   (let ((m (make-sparse-keymap)))
