@@ -533,24 +533,29 @@ A:
                       (stop . ["\n"]))))))))
 
 (defun openai-current-commit-msg (&optional git-diff)
-  "Make a commit msg from your stages changes."
+  "Make a commit msg from your stages changes.
+This inserts 2 variations currently so you can choose."
   (interactive)
-  (let* ((git-diff (or git-diff
-                       (shell-command-to-string
-                        "git diff --cached")))
-         (input (format
-                 "I am a git commit message bot. You give me a git diff of your staged changes and I make a commit message.
-Example commit messages:
-- Fix bug in login form validation
-- Improve performance of image loading on homepage
-- Add missing unit tests for user registration feature
-- Add documentation for openai-api-davinci-edit and recursive calls
-- Update readme
-- Format whitespace
+  (let* ((git-diff
+          (or git-diff
+              (shell-command-to-string
+               "git diff --cached")))
+         (input
+          (format
+           "I am a commit message generator designed to produce professional and informative messages based on a git diff. Given a diff, I will analyze the changes made and generate a commit message that accurately describes the modifications made to the code. My goal is to provide clear and concise commit messages that are useful for other developers who are reviewing the code.
+
+Diff: --- a/main.py
++++ b/main.py
+@@ -1,5 +1,5 @@
+ def foo():
+-  print(\"foo\")
++  print(\"bar\")
+
+Message: Updated foo function to print bar instead.
 
 Diff: %s
-Message: "
-                 git-diff)))
+
+Message: " git-diff)))
     (cl-loop
      for
      answer
@@ -559,13 +564,18 @@ Message: "
       (list
        `((model . "text-davinci-003")
          (prompt . ,input)
-         (top_p . 1)
          (max_tokens . 60)
          (temperature . 0.7)
-         (presence_penalty . 1)
-         (frequency_penalty . 0))))
+         (presence_penalty . 0)
+         (stop . ["\n"]))
+       `((model . "text-davinci-003")
+         (prompt . ,input)
+         (max_tokens . 60)
+         (temperature . 1)
+         (presence_penalty . 0)
+         (stop . ["\n"]))))
      do
-     (insert (string-trim answer)))))
+     (insert (string-trim answer) "\n"))))
 
 (defvar openai-api-keymap
   (let ((m (make-sparse-keymap)))
