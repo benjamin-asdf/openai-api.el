@@ -88,7 +88,7 @@ prompts via =openai-api-explain-data-list=.
 #+end_src
 
 ** openai-current-commit-msg
-Generates a commit message from your current diff. I recommend binding
+Generates a commit messages from your current diff. I recommend binding
 it in =git-commit-mode-map=.
 
 ** openai-api-fact-bot
