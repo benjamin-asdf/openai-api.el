@@ -39,9 +39,25 @@ You need to adapt this.
   to do this).
 - use =openai-api-davinci-edit=
 - The response is put in a buffer called =*openai-edit-<your-buffer-name>*=
-- =ediff-buffers= is nice when you have a response
-- use =openai-api-edit-ediff-buffers= to auto select target and
-  response buffs.
+- =ediff-buffers= works nice for response and target buffer
+- So I made =openai-api-edit-ediff-buffers=
+  bound locally in response buffers at =openai-api-response-buffer-ediff-key= ("C-c C-e")
+
+*** recursive calls
+One use pattern is to do "recursive" =openai-api-davinci-edit= with
+the response buffer.
+
+*** Empty prompt
+Another usage pattern is to open an empy buffer, then ask it to
+produce something.
+- =switch-to-buffer= "foo"
+- use =openai-api-davinci-edit= "Shell command that lists all files with more than 1mb in the current dir"
+
+#+begin_src shell
+#!/bin/bash
+
+find . -type f -size +1M
+#+end_src
 
 *** Seriously play with this
 - "Add a docstring"
