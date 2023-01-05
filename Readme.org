@@ -1,7 +1,6 @@
 I wanted openai-api stuff in emacs.
 Consider this an alpha version where everything still might change.
-PRs welcome, if you use it and have improves, make your own commands
-or implement more examples.
+PRs welcome, feel free to suggest new commands.
 
 * Setup
 
