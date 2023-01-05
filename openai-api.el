@@ -54,13 +54,16 @@ See `spinner-types' variable."
   :type 'integer
   :group 'openai-api)
 
+(defvar openai-api-response-buffer-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-e") 'openai-api-edit-ediff-buffers)
+    map)
+  "Keymap for `openai-api-response-buffer-mode'.")
 
-(defcustom openai-api-response-buffer-ediff-key "C-c C-e"
-  "A kbd key for `openai-api-edit-ediff-buffers'.
-This is locally bound in edit response buffers.
-Set this to `nil' to disable this behaviour."
-  :type 'string
-  :group 'openai-api)
+(define-minor-mode openai-api-response-buffer-mode
+  "Minor mode for OpenAI API response buffers."
+  :lighter " OpenAI"
+  :keymap openai-api-response-buffer-mode-map)
 
 (defconst openai-api-edit-buffer "*ai-instructions*"
   "Buffer to use for the openai edit instructions prompt")
@@ -299,10 +302,8 @@ Do nothing if `openai-api-show-eval-spinner' is nil."
       (spinner-start openai-api-eval-spinner-type nil
                      openai-api-eval-spinner-delay))))
 
-;; and then we can try to merge the resp and the target buffer
-;; with options to add to top or bottom, or try the merge
-
 (defun opanai-api-latest-used-buffer (buffs)
+  "Return the latest used buffer from BUFFS."
   (car
    (mapcar #'cdr (sort (mapcan
                         (lambda (b)
@@ -394,6 +395,7 @@ The response is displayed in a buffer named
                                response))
                        (insert choice))
                      (funcall mode))
+                   (openai-api-response-buffer-mode 1)
                    (setf openai-api-edit-target-buffer target-buffer)
                    (pop-to-buffer (current-buffer)))))
            (with-current-buffer
