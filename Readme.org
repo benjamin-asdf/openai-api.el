@@ -42,6 +42,7 @@ You need to adapt this.
 - =ediff-buffers= works nice for response and target buffer
 - So I made =openai-api-edit-ediff-buffers=
   bound locally in response buffers at =openai-api-response-buffer-ediff-key= ("C-c C-e")
+  (this keybind is broken right now)
 
 *** recursive calls
 One use pattern is to do "recursive" =openai-api-davinci-edit= with

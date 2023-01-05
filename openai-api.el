@@ -405,14 +405,25 @@ The response is displayed in a buffer named
 
 (defun openai-api-edit-ediff-buffers ()
   (interactive)
-  (let ((buffers
-         (if (openai-api-edit-resp-buffer-p (current-buffer))
-             (list openai-api-edit-target-buffer (current-buffer))
-           (when-let ((resp-buffer (car (cl-loop for buffer in (buffer-list)
-                                               when (= (current-buffer)
-                                                       (with-current-buffer buffer openai-api-edit-target-buffer))
-                                               collect buffer))))
-             (list (current-buffer) resp-buffer)))))
+  (let ((buffers (if (openai-api-edit-resp-buffer-p
+                      (current-buffer))
+                     (list
+                      openai-api-edit-target-buffer
+                      (current-buffer))
+                   (when-let
+                       ((resp-buffer
+                         (car (cl-loop for buffer in (buffer-list)
+                               when (when-let ((target-buff
+                                               (with-current-buffer
+                                                   buffer
+                                                 openai-api-edit-target-buffer)))
+                                      (= (current-buffer)
+                                         target-buff))
+                               collect
+                               buffer))))
+                     (list
+                      (current-buffer)
+                      resp-buffer)))))
     (unless buffers
       (error "Don't know what response buffer you want to ediff with."))
     (apply #'ediff-buffers buffers)))
