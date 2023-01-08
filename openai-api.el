@@ -365,9 +365,6 @@ The response is displayed in a buffer named
     ;; (when (< 3000 (length input
     ;;          (message "Your input is large, consider narrowing your buffer.")))
     (with-current-buffer resp-buffer
-      (local-set-key
-       (kbd openai-api-response-buffer-ediff-key)
-       #'openai-api-edit-ediff-buffers)
       (openai-api-spinner-start resp-buffer)
       (pop-to-buffer (current-buffer))
       (openai-api-retrieve
@@ -419,8 +416,7 @@ The response is displayed in a buffer named
                                                (with-current-buffer
                                                    buffer
                                                  openai-api-edit-target-buffer)))
-                                      (= (current-buffer)
-                                         target-buff))
+                                      (eq (current-buffer) target-buff))
                                collect
                                buffer))))
                      (list
@@ -562,7 +558,7 @@ Diff: --- a/main.py
 -  print(\"foo\")
 +  print(\"bar\")
 
-Message: Updated foo function to print bar instead
+Message: Update foo function to print bar instead
 
 Diff: %s
 
