@@ -100,12 +100,11 @@ Make a question, get facts.
 See [[file:examples/q&a.el][example]].
 
 * emacs package goals
-
+*** TODO spinner timers are not canceled?
 *** DONE Completion and edit are separate models, provide both
 *** DONE Provide a way to define commands, the power comes from engeneering the prompt
 *** TODO implement more examples
     https://beta.openai.com/examples
-
 ** Also make it easy to use the other models for text (org mode,markdown mode)
 - =openai-api-complete-text-small=
 - =openai-api-edit-text=
