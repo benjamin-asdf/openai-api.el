@@ -43,15 +43,13 @@ You need to adapt this.
   C-e= in response buffers.
 
 *** recursive calls
-One use pattern is to do "recursive" =openai-api-davinci-edit= with
-the response buffer.
+Repeat another =openai-api-davinci-edit= from inside the response buffer.
 
 *** Empty prompt
 Another usage pattern is to open an empy buffer, then ask it to
 produce something.
 - =switch-to-buffer= "foo"
 - use =openai-api-davinci-edit= "Shell command that lists all files with more than 1mb in the current dir"
-
 
 #+begin_src shell
 #!/bin/bash
