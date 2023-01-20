@@ -137,34 +137,7 @@ See `spinner-types' variable."
     (cl-loop for i from 1 to (length words)
              collect (mapconcat 'identity (cl-subseq words 0 i) " "))))
 
-(defun openai-api-choices ()
-  "Return a list of choices from the current buffer."
-  (let ((s (buffer-string)))
-    (with-temp-buffer
-      (setq buffer-file-coding-system
-            'utf-8)
-      (insert s)
-      (decode-coding-region
-       (point-min)
-       (point-max)
-       'utf-8)
-      (goto-char (point-min))
-      (let ((data (when (re-search-forward
-                         "\n\n"
-                         nil
-                         t)
-                    (json-read))))
-        (when (or (not data)
-                  (assoc-default 'error data))
-          (pop-to-buffer
-           (current-buffer))
-          (error
-           "Error response from openai"))
-        (assoc-default 'choices data)))))
-
-(defun openai-api-choices-text-1 (choices)
-  ""
-  (cl-map 'list (lambda (d) (assoc-default 'text d)) choices))
+(defun openai-elide-password-and-pop-buffer())
 
 (defun openai-api-choices-text ()
   "Return a list of choices from the current buffer."
@@ -211,6 +184,35 @@ ENDPOINT is the API endpoint to use."
        (data (assq-delete-all :endpoint data))
        (url-request-data (json-encode data)))
     (url-retrieve-synchronously endpoint)))
+
+(defun openai-api-choices ()
+  "Return a list of choices from the current buffer."
+  (let ((s (buffer-string)))
+    (with-temp-buffer
+      (setq buffer-file-coding-system
+            'utf-8)
+      (insert s)
+      (decode-coding-region
+       (point-min)
+       (point-max)
+       'utf-8)
+      (goto-char (point-min))
+      (let ((data (when (re-search-forward
+                         "\n\n"
+                         nil
+                         t)
+                    (json-read))))
+        (when (or (not data)
+                  (assoc-default 'error data))
+          (pop-to-buffer
+           (current-buffer))
+          (error
+           "Error response from openai"))
+        (assoc-default 'choices data)))))
+
+(defun openai-api-choices-text-1 (choices)
+  ""
+  (cl-map 'list (lambda (d) (assoc-default 'text d)) choices))
 
 (defun openai-api-sync (strategies)
   (cl-loop
