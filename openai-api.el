@@ -28,7 +28,7 @@ This can be set to a string or a function that returns a string.
 If you use `auth-sources' (eg.  pass) then you can set this to a
 function that calls `auth-source-user-or-password' with the
 appropriate parameters."
-  :type 'string
+  :type '(choice string function)
   :group 'openai)
 
 (defvar openai-api-urls `(:edit "https://api.openai.com/v1/edits"
@@ -125,6 +125,12 @@ See `spinner-types' variable."
       (setq braces-count (1- braces-count)))
     new-str))
 
+(defun openai-api-get-api-key ()
+  (cond
+   ((stringp openai-api-key) openai-api-key)
+   ((functionp openai-api-key) (funcall openai-api-key))
+   (t (user-error "openai-api-key is not set."))))
+
 (defun opanai-api-split-words (string)
   "Split STRING into a list of substrings, each containing one more word."
   (let ((words (split-string string " " t)))
@@ -164,6 +170,12 @@ See `spinner-types' variable."
   "Return a list of choices from the current buffer."
   (openai-api-choices-text-1 (openai-api-choices)))
 
+(defun openai-api-headers ()
+  `(("Content-Type" . "application/json")
+    ("Authorization" . ,(concat
+                         "Bearer "
+                         (openai-api-get-api-key)))))
+
 (defun openai-api-retrieve (data cb &optional cbargs endpoint)
   "Retrieve DATA from the openai API.
 
@@ -173,10 +185,7 @@ CBARGS is a list of arguments to pass to CB.
 
 ENDPOINT is the API endpoint to use."
   (let ((url-request-method "POST")
-        (url-request-extra-headers `(("Content-Type" . "application/json")
-                                     ("Authorization" . ,(concat
-                                                          "Bearer "
-                                                          openai-api-key))))
+        (url-request-extra-headers (openai-api-headers))
         (url-request-data (json-encode data)))
     (url-retrieve
      (plist-get openai-api-urls (or endpoint :completion))
@@ -189,10 +198,7 @@ ENDPOINT is the API endpoint to use."
 ENDPOINT is the API endpoint to use."
   (let*
       ((url-request-method "POST")
-       (url-request-extra-headers `(("Content-Type" . "application/json")
-                                    ("Authorization" . ,(concat
-                                                         "Bearer "
-                                                         openai-api-key))))
+       (url-request-extra-headers (openai-api-headers))
        (endpoint
         (plist-get
          openai-api-urls
@@ -331,22 +337,28 @@ Do nothing if `openai-api-show-eval-spinner' is nil."
 (defun openai-api-davinci-edit (&optional instruction target-buffer model)
   "Send INSTRUCTION to OpenAI API.
 
-INSTRUCTION is a string.
+INSTRUCTION is either a string, or a function with no args that returns a string.
 
 TARGET-BUFFER is a buffer.
+
 
 The response is displayed in a buffer named
 *openai-edit-TARGET-BUFFER-NAME*."
   (interactive (list
                 (openai-api-read-instruction)
-                (or openai-api-edit-target-buffer
-                    (current-buffer))))
-  (let* ((mode (with-current-buffer target-buffer major-mode))
+                nil))
+  (let* ((instruction (if (functionp instruction) (funcall instruction) instruction))
+         (target-buffer
+          (or target-buffer
+              openai-api-edit-target-buffer
+              (current-buffer)))
+         (mode (with-current-buffer target-buffer major-mode))
          (model (assoc-default
                  (or model 'code-davinci)
                  openai-api-edit-models))
-         (called-from-resp-buffer (openai-api-edit-resp-buffer-p
-                                   (current-buffer)))
+         (called-from-resp-buffer
+          (openai-api-edit-resp-buffer-p
+           (current-buffer)))
          (resp-buffer (cond (called-from-resp-buffer
                              (current-buffer))
                             (t
@@ -594,6 +606,24 @@ Message: "
     (define-key m (kbd "l") #'openai-api-explain-region)
     m)
   "Keymap for openai-api.")
+
+;; this is sort of nice, probably an instance of a set of ideas
+;; 'quick-prompt' ?
+
+(defun openai-api-gen-shell-command ()
+  (interactive)
+  (with-current-buffer
+      (generate-new-buffer "*openai-shell-resp*")
+    (pop-to-buffer (current-buffer))
+    (setf openai-api-edit-target-buffer (current-buffer))
+    (openai-api-davinci-edit
+     (lambda ()
+       (concat
+        "Write a shell command that "
+        (read-string "Shell command descr: ")))
+     (current-buffer))))
+
+(define-key openai-api-keymap (kbd "&") #'openai-api-gen-shell-command)
 
 (provide 'openai-api)
 
