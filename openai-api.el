@@ -137,11 +137,16 @@ See `spinner-types' variable."
     (cl-loop for i from 1 to (length words)
              collect (mapconcat 'identity (cl-subseq words 0 i) " "))))
 
-(defun openai-elide-password-and-pop-buffer())
-
 (defun openai-api-choices-text ()
   "Return a list of choices from the current buffer."
   (openai-api-choices-text-1 (openai-api-choices)))
+
+;; Not sure if I can guarantee you that I never print this anywhere
+;; (defun openai-elide-password-and-pop-buffer()
+;;   (when-let ((s (openai-api-get-api-key)))
+;;     (save-excursion
+;;       (while (re-search-forward (regexp-quote s) nil t)
+;;         (replace-match "<elided>")))))
 
 (defun openai-api-headers ()
   `(("Content-Type" . "application/json")
@@ -204,8 +209,7 @@ ENDPOINT is the API endpoint to use."
                     (json-read))))
         (when (or (not data)
                   (assoc-default 'error data))
-          (pop-to-buffer
-           (current-buffer))
+          ;; (pop-to-buffer (current-buffer))
           (error
            "Error response from openai"))
         (assoc-default 'choices data)))))
@@ -390,8 +394,7 @@ The response is displayed in a buffer named
          (unwind-protect
              (if (plist-get state :error)
                  (progn
-                   (pop-to-buffer
-                    (current-buffer))
+                   ;; (pop-to-buffer (current-buffer))
                    (error
                     "Error when sending edit instructions: %s"
                     (plist-get state :error-message)))
