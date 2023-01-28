@@ -8,7 +8,7 @@ PRs welcome, feel free to suggest new commands.
 - load file =openail.el=.
 - Check =dev.el=. You need to set =openai-api-key=.
 
-** example config
+** Example config
 
 You need to adapt this.
 
