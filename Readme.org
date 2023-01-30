@@ -40,8 +40,8 @@ You need to adapt this.
 - use =openai-api-davinci-edit=
 - The response is put in a buffer called =*openai-edit-<your-buffer-name>*=
 - =ediff-buffers= works nice for response and target buffer
-- Use =openai-api-edit-ediff-buffers=. This bound by default at =C-c
-  C-e= in response buffers.
+- Use =openai-api-edit-ediff-buffers=.
+  This bound by default at =C-c C-e= in response buffers.
 
 *** recursive calls
 Repeat another =openai-api-davinci-edit= from inside the response buffer.
