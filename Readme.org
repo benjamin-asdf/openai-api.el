@@ -13,23 +13,27 @@ PRs welcome, feel free to suggest new commands.
 You need to adapt this.
 
 #+begin_src elisp
-(use-package openai-api
-  :straight nil
-  :load-path "~/repos/openai-api.el/"
-  :config
-  (setq openai-api-key
-        (let ((s))
-          (lambda ()
-            (or s (setf s (auth-source-pick-first-password :host "openai-api"))))))
-  (define-key openai-api-keymap (kbd "i")
-              (defun mm/insert-todo ()
-                (interactive)
-                (insert "TODO: ")
-                (comment-line 1)))
-  (with-eval-after-load 'git-commit-mode
-    (define-key git-commit-mode-map (kbd "C-c i") #'openai-current-commit-msg))
-  (meow-leader-define-key
-   `("." . ,openai-api-keymap)))
+  (use-package openai-api
+    :straight nil
+    :load-path "~/repos/openai-api.el/"
+    :config
+    (setq openai-api-key
+          (let ((s))
+            (lambda ()
+              (or s (setf
+                     s
+                     (auth-source-pick-first-password
+                      :host "openai-api"))))))
+  
+    (define-key openai-api-keymap (kbd "i")
+                (defun mm/insert-todo ()
+                  (interactive)
+                  (insert "TODO: ")
+                  (comment-line 1)))
+    (with-eval-after-load 'git-commit-mode
+      (define-key git-commit-mode-map (kbd "C-c i") #'openai-current-commit-msg))
+  ;; or how every you define your keys
+  (meow-leader-define-key `("." . ,openai-api-keymap)))
 #+end_src
 
 * Usage
