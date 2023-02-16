@@ -7,6 +7,9 @@ https://github.com/benjamin-asdf/openai-api.el/blob/main/gifs/edit.gif?raw=true
 
 [[file:gifs/edit.gif][Narrow, openai edit, openai-api-edit-ediff-buffers, success]]
 
+[[file:gifs/edit.gif]]
+
+
 * Setup
 
 - Get an api token at https://openai.com/api/ (after 3 months you'd have to pay)
