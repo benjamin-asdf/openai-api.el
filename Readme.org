@@ -34,7 +34,7 @@ You need to adapt this.
                   (comment-line 1)))
     (with-eval-after-load 'git-commit-mode
       (define-key git-commit-mode-map (kbd "C-c i") #'openai-current-commit-msg))
-  ;; or how every you define your keys
+  ;; or how ever you define your keys
   (meow-leader-define-key `("." . ,openai-api-keymap)))
 #+end_src
 
