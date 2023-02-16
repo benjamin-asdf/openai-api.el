@@ -2,6 +2,9 @@ I wanted openai-api stuff in emacs.
 Consider this an alpha version where everything still might change.
 PRs welcome, feel free to suggest new commands.
 
+#+CAPTION: Narrow, openai edit, openai-api-edit-ediff-buffers, success
+https://github.com/benjamin-asdf/openai-api.el/blob/main/gifs/edit.gif?raw=true
+
 * Setup
 
 - Get an api token at https://openai.com/api/ (after 3 months you'd have to pay)
