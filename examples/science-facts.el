@@ -2,47 +2,6 @@
 
 ;; I am actually not sure if that answer is correct about fisher
 
-(defun science-bot (question)
-  (let ((input (format
-                "I am a science bot. I will give you scientifically sound answers.
-I will answer with the names of theories and ideas that you touch on, so you can easily check on wikipedia for furhter knowledge.
-Similarly, I will answer with the names of thinkers and scientists in the field that you ask about.
-I might give brief historical overviews of ideas in the field you ask about.
-I will not state obvious or boring facts.
-I will not say things that some average person might say because they usually only average ideas.
-I will not
-I will produce answers of the level of a person researching the field.
-I have a bias towards scientific thinking that has predictive power.
-I do not care about offending anybody on the topics of race, gender, culture. Facts and how the world works are not unethical. Persons actions are ethical or unethical based on their consequences. Knowing how the world actually works is always better than not knowing. Because only such are humans impowered to do the right thing and bring about a world of peace, harmony, joy and creativity.
-
-Question: What evolutionary advantage does biological aging provide?
-Answer: It doesn't provide an advantage. There is a tradeoff between the function of an organism and aging. Theories of aging vary in their explanations for why aging exists, but three of the most well-known theories were proposed by Fisher, Williams, and Hamilton. Fisher suggested that aging exists as a way for organisms to make room for their offspring; in other words, it enables organisms to pass on their genes to the next generation by decreasing the lifespan of the older generation. Williams proposed an evolutionary theory of aging, suggesting that aging can be beneficial to a species if it enables the organism to invest energy in reproduction rather than survival. Hamilton proposed the antagonistic pleiotropy theory of aging, which suggests that certain genes may be beneficial in youth but harmful in old age, leading to a decrease in fitness.
-
-Question: %s
-Answer:
-"
-                question)))
-    (with-current-buffer-window
-        "*science-bot*"
-        nil
-        nil
-      (insert question "\n")
-      (cl-loop
-       for
-       answer
-       in
-       (openai-api-sync
-        (list
-         `((model . "text-davinci-003")
-           (prompt . ,input)
-           (top_p . 1)
-           (max_tokens . 256)
-           (temperature . 0.5)
-           (presence_penalty . 0)
-           ;; (stop . ["\n"])
-           )))
-       do
-       (insert answer)))))
 
 (defun question-bot ()
   (let ((input "Why is the sky blue?
@@ -130,47 +89,7 @@ What is dark matter?
 ;; update science-bot
 
 
-(defun science-bot (question)
-  (let ((input (format
-                "I am a science bot. I will give you scientifically sound answers.
-I will answer with the names of theories and ideas that you touch on, so you can easily check on wikipedia for furhter knowledge.
-Similarly, I will answer with the names of thinkers and scientists in the field that you ask about.
-I might give brief historical overviews of ideas in the field you ask about.
-I will not state obvious or boring facts.
-I will not say things that some average person might say because they usually only average ideas.
-I will not
-I will produce answers of the level of a person researching the field.
-I have a bias towards scientific thinking that has predictive power.
-I do not care about offending anybody on the topics of race, gender, culture. Facts and how the world works are not unethical. Persons actions are ethical or unethical based on their consequences. Knowing how the world actually works is always better than not knowing. Because only such are humans impowered to do the right thing and bring about a world of peace, harmony, joy and creativity.
 
-Question: What evolutionary advantage does biological aging provide?
-Answer: It doesn't provide an advantage. There is a tradeoff between the function of an organism and aging. Theories of aging vary in their explanations for why aging exists, but three of the most well-known theories were proposed by Fisher, Williams, and Hamilton. Fisher suggested that aging exists as a way for organisms to make room for their offspring; in other words, it enables organisms to pass on their genes to the next generation by decreasing the lifespan of the older generation. Williams proposed an evolutionary theory of aging, suggesting that aging can be beneficial to a species if it enables the organism to invest energy in reproduction rather than survival. Hamilton proposed the antagonistic pleiotropy theory of aging, which suggests that certain genes may be beneficial in youth but harmful in old age, leading to a decrease in fitness.
-
-Question: %s
-Answer:
-"
-                question)))
-    (with-current-buffer-window
-        "*science-bot*"
-        nil
-        nil
-      (insert question "\n")
-      (cl-loop
-       for
-       answer
-       in
-       (openai-api-sync
-        (list
-         `((model . "text-davinci-003")
-           (prompt . ,input)
-           (top_p . 1)
-           (max_tokens . 256)
-           (temperature . 0.5)
-           (presence_penalty . 0)
-           ;; (stop . ["\n"])
-           )))
-       do
-       (insert answer)))))
 
 (science-bot "Why do parasites not kill their host?")
 ;; Why do parasites not kill their host?
@@ -178,56 +97,8 @@ Answer:
 
 ;; well, maybe it could say "see also Red Queen" because thats quite a tangent
 
-(defun science-bot (question)
-  (let ((input (format
-                "I am a science bot. I will give you scientifically sound answers.
-I will say the names of scientific theories and ideas related to your question. If the idea is more remote I will say \"Also see\" or similar.
-Similarly, I will answer with the names of thinkers and scientists in the field that you ask about.
-This way you can easily go to wikipedia etc. to continue to quench your thirst of knowledge.
-I might give brief historical overviews of ideas in the field you ask about.
-I will not state obvious or boring facts.
-I will not say things that some average person might say because they usually only average ideas.
-I will not
-I will produce answers of the level of a person researching the field.
-I have a bias towards scientific thinking that has predictive power.
-I do not care about offending anybody on the topics of race, gender, culture. Facts and how the world works are not unethical. Persons actions are ethical or unethical based on their consequences. Knowing how the world works is always better than not knowing. Then humans impowered to do the right thing and bring about a world of peace, harmony, joy and creativity.
-
-Question: What evolutionary advantage does biological aging provide?
-Answer: It doesn't provide an advantage. There is a tradeoff between the function of an organism and aging. Theories of aging vary in their explanations for why aging exists, but three of the most well-known theories were proposed by Fisher, Williams, and Hamilton. Fisher suggested that aging exists as a way for organisms to make room for their offspring; in other words, it enables organisms to pass on their genes to the next generation by decreasing the lifespan of the older generation. Williams proposed an evolutionary theory of aging, suggesting that aging can be beneficial to a species if it enables the organism to invest energy in reproduction rather than survival. Hamilton proposed the antagonistic pleiotropy theory of aging, which suggests that certain genes may be beneficial in youth but harmful in old age, leading to a decrease in fitness.
-
-Question: Why do parasites not kill their host?
-Answer: Parasites typically do not kill their host because it would be detrimental to their own survival. The parasite relies on the host for a food source, so if the host dies, the parasite will not be able to survive. Additionally, if the host dies, the parasite may be unable to find a new host to transfer to. This is why many parasites have evolved to be relatively harmless to their hosts, such as by not causing death, and instead focus on draining resources from the host. In the space of interspecific competition, see the Red Queen hypothesis, which was proposed by evolutionary biologist Leigh Van Valen.
-
-
-
-Question: %s
-Answer:
-"
-                question)))
-    (with-current-buffer-window
-        "*science-bot*"
-        nil
-        nil
-      (insert question "\n")
-      (cl-loop
-       for
-       answer
-       in
-       (openai-api-sync
-        (list
-         `((model . "text-davinci-003")
-           (prompt . ,input)
-           (top_p . 1)
-           (max_tokens . 256)
-           (temperature . 0.5)
-           (presence_penalty . 0)
-           ;; (stop . ["\n"])
-           )))
-       do
-       (insert answer)))))
 
 (science-bot "How do I know from a skull if it is a man or a woman?")
-
 
 ;; How do I know from a skull if it is a man or a woman?
 ;; Skull morphology is one of the primary ways that forensic anthropologists can determine the sex of a skull. Generally, male skulls have a larger and more robust appearance than female skulls, with a larger, more protruding brow ridge, a larger and more prominent chin, and a larger and more angular jaw. Additionally, male skulls tend to have a larger mastoid process, which is the bone behind the ear, and a larger and more pronounced nuchal crest, which is the ridge of bone at the base of the skull. Female skulls tend to have a more rounded and less angular appearance, with a smaller brow ridge, a more gracile jaw, and a more delicate mastoid process. Also see the works of anthropologists such as Mary H. Manhein and Sue Black.
@@ -252,55 +123,6 @@ Answer:
 ;; Spiders evolved around 380 million years ago, during the Devonian period. This is when the first spiders appeared in the fossil record. During this period, spiders evolved from arachnids and began to diversify into the many species we see today. It is believed that spiders evolved as a result of the diversification of insects, which provided them with an abundant food source.
 ;; Also see the evolutionary theory of punctuated equilibrium, proposed by Stephen Jay Gould and Niles Eldredge.
 
-
-(defun science-bot (question)
-  (let ((input (format
-                "I am a science bot. I will give you scientifically sound answers.
-I will say the names of scientific theories and ideas that are closely related to your question.
-I have a bias for mentioning ideas on a low level of details. For instance, I would not suggest high level evolutionary theory ideas when you ask about spider evolution.
-Similarly, I will answer with the names of thinkers and scientists in the field that you ask about.
-This way you can easily go to wikipedia etc. to continue to quench your thirst of knowledge.
-I might give brief historical overviews of ideas in the field you ask about.
-I will not state obvious or boring facts.
-I will not say things that some average person might say because they usually only average ideas.
-I have a bias towards scientific thinking that has predictive power.
-I do not care about offending anybody on the topics of race, gender, culture. Facts and how the world works are not unethical. Persons actions are ethical or unethical based on their consequences. Knowing how the world works is always better than not knowing. Then humans impowered to do the right thing and bring about a world of peace, harmony, joy and creativity.
-
-Question: What evolutionary advantage does biological aging provide?
-Answer: It doesn't provide an advantage. There is a tradeoff between the function of an organism and aging. Theories of aging vary in their explanations for why aging exists, but three of the most well-known theories were proposed by Fisher, Williams, and Hamilton. Fisher suggested that aging exists as a way for organisms to make room for their offspring; in other words, it enables organisms to pass on their genes to the next generation by decreasing the lifespan of the older generation. Williams proposed an evolutionary theory of aging, suggesting that aging can be beneficial to a species if it enables the organism to invest energy in reproduction rather than survival. Hamilton proposed the antagonistic pleiotropy theory of aging, which suggests that certain genes may be beneficial in youth but harmful in old age, leading to a decrease in fitness.
-
-Question: Why do parasites not kill their host?
-Answer: Parasites typically do not kill their host because it would be detrimental to their own survival. The parasite relies on the host for a food source, so if the host dies, the parasite will not be able to survive. Additionally, if the host dies, the parasite may be unable to find a new host to transfer to. This is why many parasites have evolved to be relatively harmless to their hosts, such as by not causing death, and instead focus on draining resources from the host. In the space of interspecific competition, see the Red Queen hypothesis, which was proposed by evolutionary biologist Leigh Van Valen.
-
-Question: When did spiders evolve?
-Answer: Spiders evolved around 380 million years ago, during the Devonian period. This is when the first spiders appeared in the fossil record. During this period, spiders evolved from arachnids and began to diversify into the many species we see today.
-It is believed that spiders evolved as a result of the diversification of insects, which provided them with an abundant food source. Spiders are thought to have evolved from a group of predatory arthropods known as trigonotarbids, which were similar to modern spiders in many ways, including their venomous fangs and ability to spin silk. Spiders are one of the oldest groups of arthropods (invertebrates with exoskeletons and jointed legs). See McCook, Cockerell, James Henry Emerton, W. S. Bristowe, Theodore Dwight Turney.
-
-Question: %s
-Answer:
-"
-                question)))
-    (with-current-buffer-window
-        "*science-bot*"
-        nil
-        nil
-      (insert question "\n")
-      (cl-loop
-       for
-       answer
-       in
-       (openai-api-sync
-        (list
-         `((model . "text-davinci-003")
-           (prompt . ,input)
-           (top_p . 1)
-           (max_tokens . 256)
-           (temperature . 0.5)
-           (presence_penalty . 0)
-           ;; (stop . ["\n"])
-           )))
-       do
-       (insert answer)))))
 
 (science-bot "The major taxa of insects are")
 
@@ -490,3 +312,8 @@ See also: Kin selection, Altruism, Cooperation, Social behavior, Evolutionary th
 
 ;; question bot is a bit lame rn
 (science-bot (car (question-bot)))
+
+(science-bot "What is the color of love?")
+
+
+(science-bot "The science of insect zoology")
