@@ -2,13 +2,7 @@ I wanted openai-api stuff in emacs.
 Consider this an alpha version where everything still might change.
 PRs welcome, feel free to suggest new commands.
 
-#+CAPTION: foo
-https://github.com/benjamin-asdf/openai-api.el/blob/main/gifs/edit.gif?raw=true
-
-[[file:gifs/edit.gif][Narrow, openai edit, openai-api-edit-ediff-buffers, success]]
-
 [[file:gifs/edit.gif]]
-
 
 * Setup
 
