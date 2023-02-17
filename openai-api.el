@@ -326,7 +326,7 @@ Do nothing if `openai-api-show-eval-spinner' is nil."
                         buffs)
                        (lambda (a b) (> (car a) (car b)))))))
 
-(defun openai-api-edit-resp-bfufer-p (buffer)
+(defun openai-api-edit-resp-buffer-p (buffer)
   (with-current-buffer buffer openai-api-edit-target-buffer))
 
 ;; maybe make you select buffer with prefix command
