@@ -89,8 +89,6 @@ What is dark matter?
 ;; update science-bot
 
 
-
-
 (science-bot "Why do parasites not kill their host?")
 ;; Why do parasites not kill their host?
 ;; Parasites typically do not kill their host because it would be detrimental to their own survival. The parasite relies on the host for a food source, so if the host dies, the parasite will not be able to survive. Additionally, if the host dies, the parasite may be unable to find a new host to transfer to. This is why many parasites have evolved to be relatively harmless to their hosts, such as by not causing death, and instead focus on draining resources from the host. This is known as the Red Queen hypothesis, which was proposed by evolutionary biologist Leigh Van Valen.
