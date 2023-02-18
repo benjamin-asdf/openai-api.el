@@ -41,7 +41,7 @@ You need to adapt this.
 * Usage
 
 ** openai-api-davinci-edit
-- optionally narrow your buffer. E.g. to your defun. (you usually want
+- optionally =narrow= your buffer. E.g. to your defun. (you usually want
   to do this).
 - use =openai-api-davinci-edit=
 - The response is put in a buffer called =*openai-edit-<your-buffer-name>*=
@@ -104,7 +104,9 @@ it in =git-commit-mode-map=.
 Make a question, get facts.
 See [[file:examples/q&a.el][example]].
 
-* emacs package goals
+
+* TODOs
+*** TODO Support /Azure OpenAI API/ (#1)
 *** TODO spinner timers are not canceled?
 *** DONE Completion and edit are separate models, provide both
 *** DONE Provide a way to define commands, the power comes from engeneering the prompt
@@ -117,5 +119,6 @@ See [[file:examples/q&a.el][example]].
 *** docstrings
 *** TODO more readme
 *** TODO gifs
-** other projects
-[[https://github.com/debanjum/codex-completion][codex-completion]] package is not up to date with the api endpoints.
+
+* Related Projects
+- [[https://github.com/debanjum/codex-completion][codex-completion]] package is not up to date with the api endpoints.
