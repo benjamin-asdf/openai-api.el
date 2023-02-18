@@ -105,9 +105,16 @@ Make a question, get facts.
 See [[file:examples/q&a.el][example]].
 
 ** openai-api-gen-shell-command
+Describe a shell command, get a resp buffer. This uses the edit
+enpoint.
 
-Describe a shell command, get a resp buffer
+** openai-api-completions
+This is meant to be a quick completion function.
 
+I was first trying to put this into =capf= but it is not fast enough
+for that.
+Not fleshed out yet so feel free to play around and let me know if you
+have a variant that works well.
 
 * TODOs
 *** TODO Support /Azure OpenAI API/ (#1)

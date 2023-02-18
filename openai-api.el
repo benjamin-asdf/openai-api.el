@@ -556,7 +556,7 @@ A:
                       (stop . ["\n"]))))))))
 
 (defun openai-current-commit-msg (&optional git-diff)
-  "Make a commit msg from your stages changes.
+  "Make a commit msg from your staged changes.
 This inserts 2 variations currently so you can choose."
   (interactive)
   (let* ((git-diff (or git-diff
@@ -599,20 +599,8 @@ Message: "
      do
      (insert (string-trim answer) "\n"))))
 
-(defvar openai-api-keymap
-  (let ((m (make-sparse-keymap)))
-    (define-key m (kbd "e") #'openai-api-davinci-edit)
-    (define-key m (kbd "E") #'openai-api-edit-text)
-    (define-key m (kbd "t") #'openai-api-complete-text-small)
-    (define-key m (kbd "f") #'openai-api-fact-bot)
-    (define-key m (kbd "l") #'openai-api-explain-region)
-    m)
-  "Keymap for openai-api.")
-
-;; this is sort of nice, probably an instance of a set of ideas
-;; 'quick-prompt' ?
-
 (defun openai-api-gen-shell-command ()
+  "Generate a shell command using the OpenAI API."
   (interactive)
   (with-current-buffer
       (generate-new-buffer "*openai-shell-resp*")
@@ -625,7 +613,17 @@ Message: "
         (read-string "Shell command descr: ")))
      (current-buffer))))
 
-(define-key openai-api-keymap (kbd "&") #'openai-api-gen-shell-command)
+(defvar openai-api-keymap
+  (let ((m (make-sparse-keymap)))
+    (define-key m (kbd "e") #'openai-api-davinci-edit)
+    (define-key m (kbd "E") #'openai-api-edit-text)
+    (define-key m (kbd "t") #'openai-api-complete-text-small)
+    (define-key m (kbd "f") #'openai-api-fact-bot)
+    (define-key m (kbd "l") #'openai-api-explain-region)
+    (define-key m (kbd "&") #'openai-api-gen-shell-command)
+    (define-key m (kbd "j") #'openai-api-completions)
+    m)
+  "Keymap for openai-api.")
 
 (provide 'openai-api)
 
