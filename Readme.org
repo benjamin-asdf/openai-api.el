@@ -104,6 +104,10 @@ it in =git-commit-mode-map=.
 Make a question, get facts.
 See [[file:examples/q&a.el][example]].
 
+** openai-api-gen-shell-command
+
+Describe a shell command, get a resp buffer
+
 
 * TODOs
 *** TODO Support /Azure OpenAI API/ (#1)
