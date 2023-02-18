@@ -236,19 +236,14 @@ ENDPOINT is the API endpoint to use."
                  (point))))
          (end (point))
          (prompt (buffer-substring beg end)))
-    (insert
-     (completing-read
-      "code-cushman-001: "
-      (with-current-buffer
-          (openai-api-retrieve-sync
-           `((model . "code-cushman-001")
-             (max_tokens . 30)
-             (temperature . 0)
-             (prompt . ,prompt)))
-        (mapcar openai-api-balance-parens-fn
-                (mapcan
-                 #'opanai-api-split-words
-                 (openai-api-choices-text))))))))
+    (mapc
+     #'insert
+     (openai-api-sync
+      (list
+       `((model . "code-cushman-001")
+         (max_tokens . 30)
+         (temperature . 0)
+         (prompt . ,prompt)))))))
 
 (defun openai-api-buffer-backwards-dwim ()
   (if
@@ -293,10 +288,11 @@ ENDPOINT is the API endpoint to use."
   (interactive)
   (let ((prompt (openai-api-buffer-backwards-dwim)))
     (openai-api-completion-completing-read-1
-     `((model .  "code-davinci-002")
-       (max_tokens . ,(* 4 256))
-       (temperature . 0)
-       (prompt . ,prompt)))))
+     (list
+      `((model .  "code-davinci-002")
+        (max_tokens . ,(* 4 256))
+        (temperature . 0)
+        (prompt . ,prompt))))))
 
 (defun openai-api-edit-response-finnish ()
   "Finish editing and insert response into the target buffer."
