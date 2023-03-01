@@ -176,7 +176,7 @@ updated by `op'."
   (let* ((r (copy-sequence alist))
         (cell (assoc key r)))
     (if cell
-        (setf (cdr cell) (funcall op (cdr cell)))
+        (progn (setf (cdr cell) (funcall op (cdr cell))) r)
       (cons (cons key (funcall op nil)) alist))))
 
 (defun openai-api-retrieve-sync (data &optional endpoint)
@@ -200,14 +200,15 @@ ENDPOINT is the API endpoint to use."
                                 (t :completion))))))
          (data (assq-delete-all
                 :endpoint data))
-         (url-request-data (json-encode
-                            (if (not (assoc 'prompt data))
-                                data
-                              (openai-api-clj-update
-                               data
-                               'prompt
-                               (lambda (v)
-                                 (encode-coding-string v 'utf-8)))))))
+         (url-request-data
+          (json-encode
+           (if (not (assoc 'prompt data))
+               data
+             (openai-api-clj-update
+              data
+              'prompt
+              (lambda (v)
+                (encode-coding-string v 'utf-8)))))))
     (url-retrieve-synchronously
      endpoint)))
 
