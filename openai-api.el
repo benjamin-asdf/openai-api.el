@@ -170,25 +170,46 @@ ENDPOINT is the API endpoint to use."
      cb
      cbargs)))
 
+(defun openai-api-clj-update (alist key op)
+  "Return a new version of `alist' with the value of `key'
+updated by `op'."
+  (let* ((r (copy-sequence alist))
+        (cell (assoc key r)))
+    (if cell
+        (setf (cdr cell) (funcall op (cdr cell)))
+      (cons (cons key (funcall op nil)) alist))))
+
 (defun openai-api-retrieve-sync (data &optional endpoint)
   "Retrieve DATA from the openai API.
 
 ENDPOINT is the API endpoint to use."
-  (let*
-      ((url-request-method "POST")
-       (url-request-extra-headers (openai-api-headers))
-       (endpoint
-        (plist-get
-         openai-api-urls
-         (or (assoc-default 'endpoint data)
-             (let ((model (assoc-default 'model data)))
-               (cond
-                ((rassoc model openai-api-completion-models) :completion)
-                ((rassoc model openai-api-edit-models) :edit)
-                (t  :completion))))))
-       (data (assq-delete-all :endpoint data))
-       (url-request-data (json-encode data)))
-    (url-retrieve-synchronously endpoint)))
+  (let* ((url-request-method "POST")
+         (url-request-extra-headers (openai-api-headers))
+         (endpoint (plist-get
+                    openai-api-urls
+                    (or (assoc-default 'endpoint data)
+                        (let ((model (assoc-default 'model data)))
+                          (cond ((rassoc
+                                  model
+                                  openai-api-completion-models)
+                                 :completion)
+                                ((rassoc
+                                  model
+                                  openai-api-edit-models)
+                                 :edit)
+                                (t :completion))))))
+         (data (assq-delete-all
+                :endpoint data))
+         (url-request-data (json-encode
+                            (if (not (assoc 'prompt data))
+                                data
+                              (openai-api-clj-update
+                               data
+                               'prompt
+                               (lambda (v)
+                                 (encode-coding-string v 'utf-8)))))))
+    (url-retrieve-synchronously
+     endpoint)))
 
 (defun openai-api-choices ()
   "Return a list of choices from the current buffer."
@@ -265,23 +286,28 @@ ENDPOINT is the API endpoint to use."
     "AI completions: "
     (openai-api-sync strategies))))
 
-(defun openai-api-complete-text-small ()
+(defun openai-api-text-davinci-complete ()
+  "Use text davinci completion with whatever is in front of
+the point.
+Text davinci might sometimes be better at code than codex."
   (interactive)
-  (insert
-   (completing-read
-    "AI completions: "
-    (mapcan (lambda (s) (split-string s "\n"))
-	    (openai-api-sync
-	     (list
-	      `((model . ,(assoc-default
-			   'text-davinci
-			   openai-api-completion-models))
-		(prompt . ,(openai-api-buffer-backwards-dwim))
-		(max_tokens . 100)
-		(temperature . 0)
-		(top_p . 1)
-		(frequency_penalty . 0)
-		(presence_penalty . 0))))))))
+  (mapc
+   #'insert
+   (cl-remove-if
+    #'string-blank-p
+    (openai-api-sync
+     (list
+      `((model . ,(assoc-default
+		   'text-davinci
+		   openai-api-completion-models))
+	(prompt . ,(string-trim (openai-api-buffer-backwards-dwim)))
+	(max_tokens . 100)
+	(temperature . 0)
+	(top_p . 1)
+	(frequency_penalty . 0)
+	(presence_penalty . 0)))))))
+
+(defalias 'openai-api-complete-text-small #'openai-api-text-davinci-complete)
 
 (defun openai-api-complete-code-thoroughly ()
   "Complete code using OpenAI API."
@@ -617,7 +643,7 @@ Message: "
   (let ((m (make-sparse-keymap)))
     (define-key m (kbd "e") #'openai-api-davinci-edit)
     (define-key m (kbd "E") #'openai-api-edit-text)
-    (define-key m (kbd "t") #'openai-api-complete-text-small)
+    (define-key m (kbd "t") #'openai-api-text-davinci-complete)
     (define-key m (kbd "f") #'openai-api-fact-bot)
     (define-key m (kbd "l") #'openai-api-explain-region)
     (define-key m (kbd "&") #'openai-api-gen-shell-command)
