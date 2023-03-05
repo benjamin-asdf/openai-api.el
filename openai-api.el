@@ -154,6 +154,31 @@ See `spinner-types' variable."
                          "Bearer "
                          (openai-api-get-api-key)))))
 
+(defun openai-api-clj-update (alist key op)
+  "Return a new version of `alist' with the value of `key'
+updated by `op'."
+  (let* ((r (copy-sequence alist))
+        (cell (assoc key r)))
+    (if cell
+        (progn (setf (cdr cell) (funcall op (cdr cell))) r)
+      (cons (cons key (funcall op nil)) alist))))
+
+;; I don't know why `url-retrieve' does not handle multibyte...?
+;; I frequently have this in german texts unfortunätly
+(defun openai-kludge-encoding (data)
+  (let ((fix-1 (lambda (key d)
+                 (openai-api-clj-update
+                  d
+                  'prompt
+                  (lambda (v)
+                    (encode-coding-string v 'utf-8))))))
+    (cond
+     ((assoc 'prompt data)
+      (funcall fix-1 'prompt data))
+     ((assoc 'input data)
+      (funcall fix-1 'input data))
+     (t data))))
+
 (defun openai-api-retrieve (data cb &optional cbargs endpoint)
   "Retrieve DATA from the openai API.
 
@@ -164,20 +189,14 @@ CBARGS is a list of arguments to pass to CB.
 ENDPOINT is the API endpoint to use."
   (let ((url-request-method "POST")
         (url-request-extra-headers (openai-api-headers))
-        (url-request-data (json-encode data)))
+        (url-request-data (json-encode
+                           (openai-kludge-encoding data))))
     (url-retrieve
-     (plist-get openai-api-urls (or endpoint :completion))
+     (plist-get
+      openai-api-urls
+      (or endpoint :completion))
      cb
      cbargs)))
-
-(defun openai-api-clj-update (alist key op)
-  "Return a new version of `alist' with the value of `key'
-updated by `op'."
-  (let* ((r (copy-sequence alist))
-        (cell (assoc key r)))
-    (if cell
-        (progn (setf (cdr cell) (funcall op (cdr cell))) r)
-      (cons (cons key (funcall op nil)) alist))))
 
 (defun openai-api-retrieve-sync (data &optional endpoint)
   "Retrieve DATA from the openai API.
@@ -202,13 +221,7 @@ ENDPOINT is the API endpoint to use."
                 :endpoint data))
          (url-request-data
           (json-encode
-           (if (not (assoc 'prompt data))
-               data
-             (openai-api-clj-update
-              data
-              'prompt
-              (lambda (v)
-                (encode-coding-string v 'utf-8)))))))
+           (openai-kludge-encoding data))))
     (url-retrieve-synchronously
      endpoint)))
 
