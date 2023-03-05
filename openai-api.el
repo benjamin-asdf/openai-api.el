@@ -307,19 +307,21 @@ Text davinci might sometimes be better at code than codex."
   (interactive)
   (mapc
    #'insert
-   (cl-remove-if
-    #'string-blank-p
-    (openai-api-sync
-     (list
-      `((model . ,(assoc-default
-		   'text-davinci
-		   openai-api-completion-models))
-	(prompt . ,(string-trim (openai-api-buffer-backwards-dwim)))
-	(max_tokens . 100)
-	(temperature . 0)
-	(top_p . 1)
-	(frequency_penalty . 0)
-	(presence_penalty . 0)))))))
+   (mapcar
+    #'openai-api-balance-parens
+    (cl-remove-if
+     #'string-blank-p
+     (openai-api-sync
+      (list
+       `((model . ,(assoc-default
+		    'text-davinci
+		    openai-api-completion-models))
+	 (prompt . ,(string-trim (openai-api-buffer-backwards-dwim)))
+	 (max_tokens . 100)
+	 (temperature . 0)
+	 (top_p . 1)
+	 (frequency_penalty . 0)
+	 (presence_penalty . 0))))))))
 
 (defalias 'openai-api-complete-text-small #'openai-api-text-davinci-complete)
 
