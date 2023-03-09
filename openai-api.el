@@ -166,12 +166,12 @@ updated by `op'."
 ;; I don't know why `url-retrieve' does not handle multibyte...?
 ;; I frequently have this in german texts unfortunätly
 (defun openai-kludge-encoding (data)
-  (let ((fix-1 (lambda (key d)
-                 (openai-api-clj-update
-                  d
-                  'prompt
-                  (lambda (v)
-                    (encode-coding-string v 'utf-8))))))
+  (let ((fix-1
+         (lambda (key d)
+           (openai-api-clj-update
+            d key
+            (lambda (v)
+              (encode-coding-string v 'utf-8))))))
     (cond
      ((assoc 'prompt data)
       (funcall fix-1 'prompt data))
@@ -227,7 +227,8 @@ ENDPOINT is the API endpoint to use."
 
 (defun openai-api-choices ()
   "Return a list of choices from the current buffer."
-  (let ((s (buffer-string)))
+  (let ((s (buffer-string))
+        (b (current-buffer)))
     (with-temp-buffer
       (setq buffer-file-coding-system
             'utf-8)
@@ -237,16 +238,16 @@ ENDPOINT is the API endpoint to use."
        (point-max)
        'utf-8)
       (goto-char (point-min))
-      (let ((data (when (re-search-forward
+      (let* ((data (when (re-search-forward
                          "\n\n"
                          nil
                          t)
-                    (json-read))))
-        (when (or (not data)
-                  (assoc-default 'error data))
-          ;; (pop-to-buffer (current-buffer))
+                    (json-read)))
+            (err (assoc-default 'error data)))
+        (when (or (not data) err)
+          ;; (pop-to-buffer b)
           (error
-           "Error response from openai"))
+           "Error response from openai %s" err))
         (assoc-default 'choices data)))))
 
 (defun openai-api-choices-text-1 (choices)
