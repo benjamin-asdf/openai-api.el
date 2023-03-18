@@ -354,8 +354,7 @@ Text davinci might sometimes be better at code than codex."
 
 (defun openai-api-chat-complete ()
   "Use a chat model with whatever is in front of the point.
-The model to use is `openai-api-chat-model'.
-Text davinci might sometimes be better at code than codex."
+The model to use is `openai-api-chat-model'."
   (interactive)
   (mapc
    #'insert
