@@ -351,7 +351,6 @@ Text davinci might sometimes be better at code than codex."
 	 (frequency_penalty . 0)
 	 (presence_penalty . 0))))))))
 
-
 (defun openai-api-chat-complete ()
   "Use a chat model with whatever is in front of the point.
 The model to use is `openai-api-chat-model'."
@@ -364,18 +363,17 @@ The model to use is `openai-api-chat-model'."
      #'string-blank-p
      (openai-chat-sync
       '((temperature . 0)
-        (max_tokens . 50))
-      ;; hmm, not super great
-      (openai-api-message 'system "Fill the rest of the text. I will insert your answer text in the user file.")
-      (openai-api-message 'user (string-trim (openai-api-buffer-backwards-dwim)))
-      (openai-api-message 'user "Complete this text"))))))
-
-;; (openai-chat-sync
-;;  '((temperature . 0))
-;;  (openai-api-message 'system "You are Emacs GPT, a large language model emacs package. Complete text and code concisely.")
-;;  (openai-api-message 'system "Answer with the rest of the text.")
-;;  (openai-api-message 'user "how many foos are in a bar?" )
-;;  (openai-api-message 'user "Complete the text for me."))
+        (max_tokens . 30))
+      (openai-api-message
+       'system
+       "You are helpful assistant emacs text completion package.")
+      (openai-api-message
+       'system
+       "You complete code in precise and focused manner.")
+      (openai-api-message
+       'user
+       (openai-api-buffer-backwards-dwim))
+      (openai-api-message 'user "Complete this text, please"))))))
 
 (defalias 'openai-api-complete-text-small #'openai-api-text-davinci-complete)
 
