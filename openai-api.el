@@ -31,8 +31,19 @@ appropriate parameters."
   :type '(choice string function)
   :group 'openai)
 
-(defvar openai-api-urls `(:edit "https://api.openai.com/v1/edits"
-                                :completion "https://api.openai.com/v1/completions"))
+(defcustom openai-api-chat-model
+   "gpt-3.5-turbo"
+   ;; "gpt-4"
+  "The openai model to use for chat."
+  :type 'string
+  :group 'openai)
+
+(defvar openai-api-urls `(:edit
+                          "https://api.openai.com/v1/edits"
+                          :completion
+                          "https://api.openai.com/v1/completions"
+                          :chat
+                          "https://api.openai.com/v1/chat/completions"))
 
 (defcustom openai-api-eval-spinner-type
   'progress-bar-filled
@@ -137,16 +148,19 @@ See `spinner-types' variable."
     (cl-loop for i from 1 to (length words)
              collect (mapconcat 'identity (cl-subseq words 0 i) " "))))
 
-(defun openai-api-choices-text ()
-  "Return a list of choices from the current buffer."
-  (openai-api-choices-text-1 (openai-api-choices)))
+(defun openai-api-choices-text-1 (choices)
+  ""
+  (cl-map 'list (lambda (d) (assoc-default 'text d)) choices))
 
-;; Not sure if I can guarantee you that I never print this anywhere
-;; (defun openai-elide-password-and-pop-buffer()
-;;   (when-let ((s (openai-api-get-api-key)))
-;;     (save-excursion
-;;       (while (re-search-forward (regexp-quote s) nil t)
-;;         (replace-match "<elided>")))))
+(defvar openai-api-content-fns
+  `(:chat (lambda (choices) (cl-map 'list (lambda (d) (assoc-default 'content (assoc-default 'message d))) choices))
+          :default ,#'openai-api-choices-text-1))
+
+(defun openai-api-choices-text (&optional kind)
+  "Return a list of choices from the current buffer."
+  (let ((choices (openai-api-choices))
+        (fn (plist-get openai-api-content-fns (or kind :default))))
+    (funcall fn choices)))
 
 (defun openai-api-headers ()
   `(("Content-Type" . "application/json")
@@ -163,15 +177,19 @@ updated by `op'."
         (progn (setf (cdr cell) (funcall op (cdr cell))) r)
       (cons (cons key (funcall op nil)) alist))))
 
+
 ;; I don't know why `url-retrieve' does not handle multibyte...?
 ;; I frequently have this in german texts unfortunätly
+
+(defun openai-api-encode-utf8 (v)
+  (encode-coding-string v 'utf-8))
+
 (defun openai-kludge-encoding (data)
   (let ((fix-1
          (lambda (key d)
            (openai-api-clj-update
             d key
-            (lambda (v)
-              (encode-coding-string v 'utf-8))))))
+            #'openai-api-encode-utf8))))
     (cond
      ((assoc 'prompt data)
       (funcall fix-1 'prompt data))
@@ -217,13 +235,10 @@ ENDPOINT is the API endpoint to use."
                                   openai-api-edit-models)
                                  :edit)
                                 (t :completion))))))
-         (data (assq-delete-all
-                :endpoint data))
-         (url-request-data
-          (json-encode
-           (openai-kludge-encoding data))))
-    (url-retrieve-synchronously
-     endpoint)))
+         (data (assq-delete-all 'endpoint data))
+         (url-request-data (json-encode
+                            (openai-kludge-encoding data))))
+    (url-retrieve-synchronously endpoint)))
 
 (defun openai-api-choices ()
   "Return a list of choices from the current buffer."
@@ -239,26 +254,23 @@ ENDPOINT is the API endpoint to use."
        'utf-8)
       (goto-char (point-min))
       (let* ((data (when (re-search-forward
-                         "\n\n"
-                         nil
-                         t)
-                    (json-read)))
-            (err (assoc-default 'error data)))
+                          "\n\n"
+                          nil
+                          t)
+                     (json-read)))
+             (err (assoc-default 'error data)))
         (when (or (not data) err)
           ;; (pop-to-buffer b)
           (error
            "Error response from openai %s" err))
         (assoc-default 'choices data)))))
 
-(defun openai-api-choices-text-1 (choices)
-  ""
-  (cl-map 'list (lambda (d) (assoc-default 'text d)) choices))
-
 (defun openai-api-sync (strategies)
   (cl-loop
    for strat in strategies
    append (with-current-buffer (openai-api-retrieve-sync strat)
-            (mapcar openai-api-balance-parens-fn (openai-api-choices-text)))))
+            (mapcar openai-api-balance-parens-fn (openai-api-choices-text
+                                                  (assoc-default 'endpoint strat))))))
 
 (defun openai-api-completions ()
   "Try to use a fast model for completions of smaller size."
@@ -281,19 +293,34 @@ ENDPOINT is the API endpoint to use."
          (temperature . 0)
          (prompt . ,prompt)))))))
 
+(defun openai-api-message (role content)
+  `((role . ,role) (content . ,(openai-api-encode-utf8 content))))
+
+(defun openai-chat-sync (opts &rest messages)
+  (openai-api-sync
+   `(((endpoint . :chat)
+      (temperature . ,(or (assoc-default 'temperature opts) 1))
+      (max_tokens . ,(or (assoc-default 'max_tokens opts) 256))
+      (model . ,openai-api-chat-model)
+      (messages . ,messages)))))
+
+;; (openai-chat-sync
+;;  (openai-api-message 'system "Purpose: Pass butter")
+;;  (openai-api-message 'user "What is your purpose?"))
+
 (defun openai-api-buffer-backwards-dwim ()
   (if
       (region-active-p)
       (buffer-substring
        (region-beginning)
        (region-end))
-      (let* ((beg (save-excursion
-                    (cl-loop for i from (point) downto (1+ (point-min))
-                             do (forward-char -1)
-                             finally return (point))))
-             (end (point))
-             (input))
-        (buffer-substring beg end))))
+    (let* ((beg (save-excursion
+                  (cl-loop for i from (point) downto (1+ (point-min))
+                           do (forward-char -1)
+                           finally return (point))))
+           (end (point))
+           (input))
+      (buffer-substring-no-properties beg end))))
 
 (defun openai-api-completion-completing-read-1 (strategies)
   (insert
@@ -323,6 +350,33 @@ Text davinci might sometimes be better at code than codex."
 	 (top_p . 1)
 	 (frequency_penalty . 0)
 	 (presence_penalty . 0))))))))
+
+
+(defun openai-api-chat-complete ()
+  "Use a chat model with whatever is in front of the point.
+The model to use is `openai-api-chat-model'.
+Text davinci might sometimes be better at code than codex."
+  (interactive)
+  (mapc
+   #'insert
+   (mapcar
+    #'openai-api-balance-parens
+    (cl-remove-if
+     #'string-blank-p
+     (openai-chat-sync
+      '((temperature . 0)
+        (max_tokens . 50))
+      ;; hmm, not super great
+      (openai-api-message 'system "Fill the rest of the text. I will insert your answer text in the user file.")
+      (openai-api-message 'user (string-trim (openai-api-buffer-backwards-dwim)))
+      (openai-api-message 'user "Complete this text"))))))
+
+;; (openai-chat-sync
+;;  '((temperature . 0))
+;;  (openai-api-message 'system "You are Emacs GPT, a large language model emacs package. Complete text and code concisely.")
+;;  (openai-api-message 'system "Answer with the rest of the text.")
+;;  (openai-api-message 'user "how many foos are in a bar?" )
+;;  (openai-api-message 'user "Complete the text for me."))
 
 (defalias 'openai-api-complete-text-small #'openai-api-text-davinci-complete)
 
@@ -665,6 +719,7 @@ Message: "
     (define-key m (kbd "l") #'openai-api-explain-region)
     (define-key m (kbd "&") #'openai-api-gen-shell-command)
     (define-key m (kbd "j") #'openai-api-completions)
+    (define-key m (kbd "c") #'openai-api-chat-complete)
     m)
   "Keymap for openai-api.")
 
