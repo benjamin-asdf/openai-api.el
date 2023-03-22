@@ -142,8 +142,11 @@ As advanced user you can get inspired by =openai-api-chat-complete=.
 *** TODO gifs
 
 * Related Projects
+Recent [[https://news.ycombinator.com/item?id=35254389][Hacker News]] article with thread of similar projects.
+
 Other emacs gpt projects, in no particular order:
 
+- https://xenodium.com/a-chatgpt-emacs-shell/
 - https://github.com/rksm/org-ai
 - https://github.com/CarlQLange/chatgpt-arcana.el
 - https://github.com/karthink/gptel
