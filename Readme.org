@@ -126,21 +126,6 @@ gpt-4 is supported via the chat api.
 
 As advanced user you can get inspired by =openai-api-chat-complete=.
 
-* TODOs
-*** TODO Support /Azure OpenAI API/ (#1)
-*** TODO spinner timers are not canceled?
-*** DONE Completion and edit are separate models, provide both
-*** DONE Provide a way to define commands, the power comes from engeneering the prompt
-*** TODO implement more examples
-    https://beta.openai.com/examples
-** Also make it easy to use the other models for text (org mode,markdown mode)
-- =openai-api-complete-text-small=
-- =openai-api-edit-text=
-** TODO Increase package quality
-*** docstrings
-*** TODO more readme
-*** TODO gifs
-
 * Related Projects
 Recent [[https://news.ycombinator.com/item?id=35254389][Hacker News]] article with thread of similar projects.
 
