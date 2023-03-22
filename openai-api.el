@@ -296,13 +296,15 @@ ENDPOINT is the API endpoint to use."
 (defun openai-api-message (role content)
   `((role . ,role) (content . ,(openai-api-encode-utf8 content))))
 
+(defun openai-chat-request (opts messages)
+  ((endpoint . :chat)
+   (temperature . ,(or (assoc-default 'temperature opts) 1))
+   (max_tokens . ,(or (assoc-default 'max_tokens opts) 256))
+   (model . ,openai-api-chat-model)
+   (messages . ,messages)))
+
 (defun openai-chat-sync (opts &rest messages)
-  (openai-api-sync
-   `(((endpoint . :chat)
-      (temperature . ,(or (assoc-default 'temperature opts) 1))
-      (max_tokens . ,(or (assoc-default 'max_tokens opts) 256))
-      (model . ,openai-api-chat-model)
-      (messages . ,messages)))))
+  (openai-api-sync (list (openai-chat-request opts messages))))
 
 ;; (openai-chat-sync
 ;;  (openai-api-message 'system "Purpose: Pass butter")

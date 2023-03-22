@@ -142,4 +142,15 @@ As advanced user you can get inspired by =openai-api-chat-complete=.
 *** TODO gifs
 
 * Related Projects
+Other emacs gpt projects, in no particular order:
+
+- https://github.com/rksm/org-ai
+- https://github.com/CarlQLange/chatgpt-arcana.el
+- https://github.com/karthink/gptel
+- https://github.com/antonhibl/gptai
+- https://github.com/emacs-openai/chatgpt
+- https://github.com/emacs-openai/codegpt
+- https://github.com/stuhlmueller/gpt.el
+
+** old
 - [[https://github.com/debanjum/codex-completion][codex-completion]] package is not up to date with the api endpoints.
