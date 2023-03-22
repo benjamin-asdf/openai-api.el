@@ -142,3 +142,9 @@ Other emacs gpt projects, in no particular order:
 
 ** old
 - [[https://github.com/debanjum/codex-completion][codex-completion]] package is not up to date with the api endpoints.
+
+* Licence
+This software is (C) Benjamin Schwerdtner and licencend under the GNU GENERAL PUBLIC LICENSE V3.
+You can find a copy of the licence at LICENCE in the repo root.
+
+

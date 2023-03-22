@@ -1,20 +1,34 @@
 ;;; openai.el --- openai api bindings for interactive development  -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2023 Benjamin Schwerdtner
+
+;; Author: Benjamin Schwerdtner
+;; URL: https://github.com/benjamin-asdf/openai-api.el
+;; Version: 0.1
+
+;; This package is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+
+;; This package is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
+
+
 ;;; Commentary:
 
 ;; This package provides bindings for openai apis
 ;;
 ;; - edit
 ;; - completions
+;; - chat
 ;;
-;; You need to set `openai-api-key`
-
-
-;; right now it is your problem to manually
-;; fix the code from the result buff
-;; but I don't want to override your buffer file
-;; maybe some scratch experience
-;; with hist
+;; You need to set `openai-api-key'
 
 ;;; Code:
 
