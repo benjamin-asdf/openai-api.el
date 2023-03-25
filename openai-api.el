@@ -52,9 +52,7 @@ appropriate parameters."
   :type 'string
   :group 'openai)
 
-(defvar openai-api-urls `(:edit
-                          "https://api.openai.com/v1/edits"
-                          :completion
+(defvar openai-api-urls `(:completion
                           "https://api.openai.com/v1/completions"
                           :chat
                           "https://api.openai.com/v1/chat/completions"))
@@ -101,10 +99,6 @@ See `spinner-types' variable."
   (if (fboundp 'lispy--balance) #'lispy--balance
     #'openai-api-balance-parens)
   "Function to balance parens.")
-
-(defvar openai-api-edit-models
-  '((code-davinci . "code-davinci-edit-001")
-    (text-davinci . "text-davinci-edit-001")))
 
 (defvar openai-api-completion-models
   '((text-davinci . "text-davinci-003")
@@ -172,7 +166,7 @@ See `spinner-types' variable."
 
 (defun openai-api-choices-text (&optional kind)
   "Return a list of choices from the current buffer."
-  (let ((choices (openai-api-choices))
+  (let ((choices (openai-api-choices-or-error))
         (fn (plist-get openai-api-content-fns (or kind :default))))
     (funcall fn choices)))
 
@@ -219,14 +213,20 @@ CB is a function to call with the results.
 CBARGS is a list of arguments to pass to CB.
 
 ENDPOINT is the API endpoint to use."
-  (let ((url-request-method "POST")
-        (url-request-extra-headers (openai-api-headers))
-        (url-request-data (json-encode
-                           (openai-kludge-encoding data))))
+  (let* ((url-request-method "POST")
+         (url-request-extra-headers (openai-api-headers))
+         (endpoint (or endpoint
+                       (assoc-default 'endpoint data)))
+         (endpoint (plist-get
+                    openai-api-urls
+                    (or endpoint :completion)))
+         (data (assq-delete-all
+                'endpoint
+                data))
+         (url-request-data (json-encode
+                            (openai-kludge-encoding data))))
     (url-retrieve
-     (plist-get
-      openai-api-urls
-      (or endpoint :completion))
+     endpoint
      cb
      cbargs)))
 
@@ -244,17 +244,13 @@ ENDPOINT is the API endpoint to use."
                                   model
                                   openai-api-completion-models)
                                  :completion)
-                                ((rassoc
-                                  model
-                                  openai-api-edit-models)
-                                 :edit)
                                 (t :completion))))))
          (data (assq-delete-all 'endpoint data))
          (url-request-data (json-encode
                             (openai-kludge-encoding data))))
     (url-retrieve-synchronously endpoint)))
 
-(defun openai-api-choices ()
+(defun openai-api-choices-or-error ()
   "Return a list of choices from the current buffer."
   (let ((s (buffer-string))
         (b (current-buffer)))
@@ -311,7 +307,7 @@ ENDPOINT is the API endpoint to use."
   `((role . ,role) (content . ,(openai-api-encode-utf8 content))))
 
 (defun openai-chat-request (opts messages)
-  ((endpoint . :chat)
+  `((endpoint . :chat)
    (temperature . ,(or (assoc-default 'temperature opts) 1))
    (max_tokens . ,(or (assoc-default 'max_tokens opts) 256))
    (model . ,openai-api-chat-model)
@@ -447,28 +443,22 @@ Do nothing if `openai-api-show-eval-spinner' is nil."
    'openai-api-edit-instructions-history
    (car openai-api-edit-instructions-history)))
 
-(defun openai-api-davinci-edit (&optional instruction target-buffer model)
-  "Send INSTRUCTION to OpenAI API.
+(defun openai-api-chat-edit (&optional instruction target-buffer)
+  "Edit the code in the target buffer using OpenAI API.
 
-INSTRUCTION is either a string, or a function with no args that returns a string.
+Optional INSTRUCTION is a string containing the instruction to the AI.
+Optional TARGET-BUFFER is the buffer containing the code to edit. If not provided, the current buffer is used.
 
-TARGET-BUFFER is a buffer.
+Gets a code editing response from OpenAI API based on the instruction and inserts it in a new buffer.
+The user is prompted to choose the best edit and copy it to the target buffer."
 
-
-The response is displayed in a buffer named
-*openai-edit-TARGET-BUFFER-NAME*."
-  (interactive (list
-                (openai-api-read-instruction)
-                nil))
+  (interactive (list (openai-api-read-instruction) nil))
   (let* ((instruction (if (functionp instruction) (funcall instruction) instruction))
          (target-buffer
           (or target-buffer
               openai-api-edit-target-buffer
               (current-buffer)))
          (mode (with-current-buffer target-buffer major-mode))
-         (model (assoc-default
-                 (or model 'code-davinci)
-                 openai-api-edit-models))
          (called-from-resp-buffer
           (openai-api-edit-resp-buffer-p
            (current-buffer)))
@@ -484,28 +474,39 @@ The response is displayed in a buffer named
                      resp-buffer
                    target-buffer)
                (buffer-string)))
-            ;; I am considerig putting <file> ends here but always?
-            (buffer-string))))
-    ;; not sure such a thing somewhere
-    ;; (when (< 3000 (length input
-    ;;          (message "Your input is large, consider narrowing your buffer.")))
+          (buffer-string))))
     (with-current-buffer resp-buffer
       (openai-api-spinner-start resp-buffer)
-      (pop-to-buffer (current-buffer))
       (openai-api-retrieve
-       `((model . ,model)
-         (temperature . 0)
-         (input . ,input)
-         (instruction . ,instruction))
+       (openai-chat-request
+        '((max_tokens . 2048))
+        (list
+         (openai-api-message
+          'system
+          "Your purpose: Edit code.
+
+Example interaction:
+
+user: Input: (let [file \"foo\"] )
+user: Instruction: Read the contents of the file
+
+assistant: (let [file \"foo\"] (slurp file))")
+         (openai-api-message
+          'user
+          (concat "Input: " input))
+         (openai-api-message
+          'user
+          (concat
+           "Instruction: "
+           (if (string-empty-p instruction)
+               "Fill in the blanks in this code in logical and useful way. Implement todos."
+             instruction)))))
        (lambda (state)
          (unwind-protect
+             (pop-to-buffer (current-buffer))
              (if (plist-get state :error)
-                 (progn
-                   ;; (pop-to-buffer (current-buffer))
-                   (error
-                    "Error when sending edit instructions: %s"
-                    (plist-get state :error-message)))
-               (let ((response (openai-api-choices-text)))
+                 (openai-api-choices-or-error)
+               (let ((response (openai-api-choices-text :chat)))
                  (with-current-buffer
                      resp-buffer
                    (let ((inhibit-read-only t))
@@ -522,9 +523,9 @@ The response is displayed in a buffer named
            (with-current-buffer
                resp-buffer
              (when spinner-current
-               (spinner-stop)))))
-       nil
-       :edit))))
+               (spinner-stop)))))))))
+
+(make-obsolete 'openai-api-davinci-edit "Openai deleted edit models. Use `openai-api-chat-edit'")
 
 (defun openai-api-edit-ediff-buffers ()
   (interactive)
@@ -555,12 +556,6 @@ The response is displayed in a buffer named
   (cl-loop for buffer in (buffer-list)
            when (openai-api-edit-resp-buffer-p buffer)
            do (kill-buffer buffer)))
-
-(defun openai-api-edit-text ()
-  "Use davinci for edit."
-  (interactive)
-  (openai-api-davinci-edit
-   (openai-api-read-instruction) (current-buffer) 'text-davinci))
 
 ;; https://beta.openai.com/examples/default-time-complexity
 ;; see examples/time-complexity.el
@@ -725,8 +720,7 @@ Message: "
 
 (defvar openai-api-keymap
   (let ((m (make-sparse-keymap)))
-    (define-key m (kbd "e") #'openai-api-davinci-edit)
-    (define-key m (kbd "E") #'openai-api-edit-text)
+    (define-key m (kbd "e") #'openai-api-chat-edit)
     (define-key m (kbd "t") #'openai-api-text-davinci-complete)
     (define-key m (kbd "f") #'openai-api-fact-bot)
     (define-key m (kbd "l") #'openai-api-explain-region)
