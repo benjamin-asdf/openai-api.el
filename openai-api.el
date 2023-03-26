@@ -106,30 +106,30 @@ See `spinner-types' variable."
 
 (defun openai-api-balance-parens (str)
   (let ((parens-count 0)
-	(brackets-count 0)
-	(braces-count 0)
-	(new-str ""))
+        (brackets-count 0)
+        (braces-count 0)
+        (new-str ""))
     (dolist (char (string-to-list str))
       (cond ((eq char ?\()
-	     (setq parens-count (1+ parens-count))
-	     (setq new-str (concat new-str (char-to-string char))))
-	    ((eq char ?\))
-	     (setq parens-count (1- parens-count))
-	     (setq new-str (concat new-str (char-to-string char))))
-	    ((eq char ?\[)
-	     (setq brackets-count (1+ brackets-count))
-	     (setq new-str (concat new-str (char-to-string char))))
-	    ((eq char ?\])
-	     (setq brackets-count (1- brackets-count))
-	     (setq new-str (concat new-str (char-to-string char))))
-	    ((eq char ?\{)
-	     (setq braces-count (1+ braces-count))
-	     (setq new-str (concat new-str (char-to-string char))))
-	    ((eq char ?\})
-	     (setq braces-count (1- braces-count))
-	     (setq new-str (concat new-str (char-to-string char))))
-	    (t
-	     (setq new-str (concat new-str (char-to-string char))))))
+             (setq parens-count (1+ parens-count))
+             (setq new-str (concat new-str (char-to-string char))))
+            ((eq char ?\))
+             (setq parens-count (1- parens-count))
+             (setq new-str (concat new-str (char-to-string char))))
+            ((eq char ?\[)
+             (setq brackets-count (1+ brackets-count))
+             (setq new-str (concat new-str (char-to-string char))))
+            ((eq char ?\])
+             (setq brackets-count (1- brackets-count))
+             (setq new-str (concat new-str (char-to-string char))))
+            ((eq char ?\{)
+             (setq braces-count (1+ braces-count))
+             (setq new-str (concat new-str (char-to-string char))))
+            ((eq char ?\})
+             (setq braces-count (1- braces-count))
+             (setq new-str (concat new-str (char-to-string char))))
+            (t
+             (setq new-str (concat new-str (char-to-string char))))))
     (while (> parens-count 0)
       (setq new-str (concat new-str ")"))
       (setq parens-count (1- parens-count)))
@@ -354,14 +354,14 @@ Text davinci might sometimes be better at code than codex."
      (openai-api-sync
       (list
        `((model . ,(assoc-default
-		    'text-davinci
-		    openai-api-completion-models))
-	 (prompt . ,(string-trim (openai-api-buffer-backwards-dwim)))
-	 (max_tokens . 100)
-	 (temperature . 0)
-	 (top_p . 1)
-	 (frequency_penalty . 0)
-	 (presence_penalty . 0))))))))
+                    'text-davinci
+                    openai-api-completion-models))
+         (prompt . ,(string-trim (openai-api-buffer-backwards-dwim)))
+         (max_tokens . 100)
+         (temperature . 0)
+         (top_p . 1)
+         (frequency_penalty . 0)
+         (presence_penalty . 0))))))))
 
 (defun openai-api-chat-complete ()
   "Use a chat model with whatever is in front of the point.
@@ -451,32 +451,40 @@ Optional TARGET-BUFFER is the buffer containing the code to edit. If not provide
 
 Gets a code editing response from OpenAI API based on the instruction and inserts it in a new buffer.
 The user is prompted to choose the best edit and copy it to the target buffer."
-
-  (interactive (list (openai-api-read-instruction) nil))
-  (let* ((instruction (if (functionp instruction) (funcall instruction) instruction))
-         (target-buffer
-          (or target-buffer
-              openai-api-edit-target-buffer
-              (current-buffer)))
-         (mode (with-current-buffer target-buffer major-mode))
-         (called-from-resp-buffer
-          (openai-api-edit-resp-buffer-p
-           (current-buffer)))
+  (interactive (list
+                (openai-api-read-instruction)
+                nil))
+  (let* ((instruction (if (functionp instruction)
+                          (funcall instruction)
+                        instruction))
+         (target-buffer (or target-buffer
+                            openai-api-edit-target-buffer
+                            (current-buffer)))
+         (mode (with-current-buffer
+                   target-buffer
+                 major-mode))
+         (called-from-resp-buffer (openai-api-edit-resp-buffer-p
+                                   (current-buffer)))
          (resp-buffer (cond (called-from-resp-buffer
                              (current-buffer))
                             (t
-                             (generate-new-buffer (concat "*openai-edit-" (buffer-name target-buffer) "*")))))
-         (input
-          (with-temp-buffer
-            (insert
-             (with-current-buffer
-                 (if called-from-resp-buffer
-                     resp-buffer
-                   target-buffer)
-               (buffer-string)))
-          (buffer-string))))
-    (with-current-buffer resp-buffer
-      (openai-api-spinner-start resp-buffer)
+                             (generate-new-buffer
+                              (concat
+                               "*openai-edit-"
+                               (buffer-name target-buffer)
+                               "*")))))
+         (input (with-temp-buffer
+                  (insert
+                   (with-current-buffer
+                       (if called-from-resp-buffer
+                           resp-buffer
+                         target-buffer)
+                     (buffer-string)))
+                  (buffer-string))))
+    (with-current-buffer
+        resp-buffer
+      (openai-api-spinner-start
+       resp-buffer)
       (openai-api-retrieve
        (openai-chat-request
         '((max_tokens . 2048))
@@ -490,7 +498,26 @@ Example interaction:
 user: Input: (let [file \"foo\"] )
 user: Instruction: Read the contents of the file
 
-assistant: (let [file \"foo\"] (slurp file))")
+assistant: (let [file \"foo\"] (slurp file))
+
+user: Input: (window-class
+  (car (remove-if-not
+        (lambda (w)
+          (
+           \"- Slack\"
+           (window-title w)))
+        (group-windows (current-group)))))
+
+user: Instruction: string equal
+
+assistant: (window-class
+  (car (remove-if-not
+        (lambda (w)
+          (string=
+           \"- Slack\"
+           (window-title w)))
+        (group-windows (current-group)))))
+")
          (openai-api-message
           'user
           (concat "Input: " input))
@@ -503,29 +530,32 @@ assistant: (let [file \"foo\"] (slurp file))")
              instruction)))))
        (lambda (state)
          (unwind-protect
-             (pop-to-buffer (current-buffer))
-             (if (plist-get state :error)
-                 (openai-api-choices-or-error)
-               (let ((response (openai-api-choices-text :chat)))
-                 (with-current-buffer
-                     resp-buffer
-                   (let ((inhibit-read-only t))
-                     (erase-buffer)
-                     (dolist (choice
-                              (mapcar
-                               openai-api-balance-parens-fn
-                               response))
-                       (insert choice))
-                     (funcall mode))
-                   (openai-api-response-buffer-mode 1)
-                   (setf openai-api-edit-target-buffer target-buffer)
-                   (pop-to-buffer (current-buffer)))))
+           (if (plist-get state :error)
+               (openai-api-choices-or-error)
+             (let ((response (openai-api-choices-text :chat)))
+               (with-current-buffer
+                   resp-buffer
+                 (let ((inhibit-read-only t))
+                   (erase-buffer)
+                   (dolist (choice
+                            (mapcar
+                             openai-api-balance-parens-fn
+                             response))
+                     (insert choice))
+                   (funcall mode))
+                 (openai-api-response-buffer-mode
+                  1)
+                 (setf
+                  openai-api-edit-target-buffer
+                  target-buffer)
+                 (pop-to-buffer
+                  (current-buffer)))))
            (with-current-buffer
                resp-buffer
              (when spinner-current
                (spinner-stop)))))))))
 
-(make-obsolete 'openai-api-davinci-edit "Openai deleted edit models. Use `openai-api-chat-edit'")
+(make-obsolete 'openai-api-davinci-edit "Openai deleted edit models. Use `openai-api-chat-edit'" t)
 
 (defun openai-api-edit-ediff-buffers ()
   (interactive)
