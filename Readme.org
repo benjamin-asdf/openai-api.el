@@ -1,3 +1,9 @@
+/Update/: openai sort of specialized on the chat api now, so an interface like
+https://github.com/benjamin-asdf/chatgpt-shell
+is maybe a better fit.
+I am currently using my fork of chatpgt-shell exclusively basically.
+
+
 I wanted openai-api stuff in emacs.
 Consider this an alpha version where everything still might change.
 PRs welcome, feel free to suggest new commands.
@@ -26,7 +32,7 @@ You need to adapt this.
                      s
                      (auth-source-pick-first-password
                       :host "openai-api"))))))
-  
+
     (define-key openai-api-keymap (kbd "i")
                 (defun mm/insert-todo ()
                   (interactive)
@@ -146,5 +152,3 @@ Other emacs gpt projects, in no particular order:
 * Licence
 This software is (C) Benjamin Schwerdtner and licencend under the GNU GENERAL PUBLIC LICENSE V3.
 You can find a copy of the licence at LICENCE in the repo root.
-
-
